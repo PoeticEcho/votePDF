@@ -1165,6 +1165,56 @@
       border: 1px solid #cbd5e1;
       background: #fff;
       padding: 4px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .qr-wrap img.qr-rotated {
+      transform: scale(1.06);
+      box-shadow: 0 0 0 3px #3b82f6;
+    }
+
+    .share-mode-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 10px;
+      background: #dbeafe;
+      padding: 4px;
+      border-radius: 10px;
+    }
+
+    .share-mode-btn {
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #1e3a8a;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .share-mode-btn.active {
+      background: #fff;
+      border-color: #93c5fd;
+      color: #1d4ed8;
+      box-shadow: 0 2px 6px rgba(30, 58, 138, 0.1);
+    }
+
+    .ticket-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
     }
 
     /* 집계(개표) 페이지 스타일 */
@@ -1849,12 +1899,22 @@
               </div>
 
               <div class="share-box" id="share-box">
-                <h3>2. 🔗 하루(24시간) 동안 온라인 투표 공유하기</h3>
+                <h3>2. 🔗 하루(24시간) 온라인 투표 공유 (중복·재공유 차단)</h3>
                 <p class="note" style="margin-top:2px;color:#334155">
-                  공유 링크나 QR코드를 보내면 스마트폰·PC에서 투표할 수 있고, <b>실시간 집계 페이지</b>에서 합산됩니다. (15초 중복투표 제한 적용)
+                  새 링크를 수동으로 계속 만들 필요 없이, <b>1회용 티켓 자동 회전</b>과 <b>하드웨어 지문·주소창 토큰 은닉 알고리즘</b>이 재투표와 무단 재공유를 자동 차단합니다.
                 </p>
+
+                <div class="share-mode-tabs" id="share-mode-tabs" role="tablist" aria-label="공유 보안 모드 선택">
+                  <button type="button" class="share-mode-btn active" data-share-mode="onetime">
+                    🎫 1회용 스마트 QR<br><small style="font-weight:500;opacity:0.85">스캔·투표 시 하단 QR 자동교체</small>
+                  </button>
+                  <button type="button" class="share-mode-btn" data-share-mode="group">
+                    👥 단톡방 다인 공유<br><small style="font-weight:500;opacity:0.85">고정 링크 · 기기지문 1인1표</small>
+                  </button>
+                </div>
+
                 <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-                  <button type="button" class="primary" id="create-share-btn" style="padding:9px 14px;font-size:13px">🚀 새 24시간 공유 링크 생성/갱신</button>
+                  <button type="button" class="primary" id="create-share-btn" style="padding:9px 14px;font-size:13px">🚀 24시간 연장 / 새 티켓 발급</button>
                   <button type="button" id="go-results-btn" style="padding:9px 14px;font-size:13px">📊 실시간 집계 보기</button>
                 </div>
                 <div id="share-link-area" style="display:none">
@@ -1865,9 +1925,10 @@
                   <div class="qr-wrap">
                     <img id="share-qr-img" alt="투표 공유 QR코드">
                     <div class="note" style="margin:0;color:#1e3a8a">
-                      <b>QR코드 스캔으로 바로 투표!</b><br>
-                      스마트폰 카메라로 스캔하면 이 투표용지가 바로 열립니다.<br>
-                      <span id="share-expire-label" style="color:#b91c1c;font-weight:700"></span>
+                      <b id="qr-mode-title">🎫 1회용 스마트 QR (자동 갱신형)</b><br>
+                      <span id="qr-mode-desc">1명이 스캔·투표하면 이전 QR은 즉시 폐기(재공유 불가)되고 이 화면의 QR이 새 티켓으로 자동 교체됩니다.</span><br>
+                      <span class="ticket-status-pill" id="ticket-status-pill">🛡️ 보안 티켓 대기 중</span><br>
+                      <span id="share-expire-label" style="color:#b91c1c;font-weight:700;display:inline-block;margin-top:4px"></span>
                     </div>
                   </div>
                 </div>
@@ -1938,12 +1999,48 @@
     const voterKey = 'ballot-voter-device-id';
     const defaults = ['첫번째곰돌이', '양양이', '불리', '브릭타', '하식이', '짜구짜꾸', '엄마토끼', '해오름토끼'];
 
-    // 기기 고유 voterId 보장 (중복 투표 방지용)
-    let deviceVoterId = localStorage.getItem(voterKey);
-    if (!deviceVoterId) {
-      deviceVoterId = 'v_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
-      try { localStorage.setItem(voterKey, deviceVoterId); } catch {}
+    // 64비트 고속 해시 알고리즘 (cyrb53) - 하드웨어 지문 및 입장 서명 생성용
+    function cyrb53(str, seed = 0) {
+      let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+      for (let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+      }
+      h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+      h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+      return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
     }
+
+    function computeEntrySig(pollId) {
+      return cyrb53('vpdf_official_entry_' + pollId, 77).slice(0, 5);
+    }
+
+    function generateTicketCode() {
+      return Math.random().toString(36).slice(2, 5) + Date.now().toString(36).slice(-2);
+    }
+
+    // 기기 고유 voterId 보장 (localStorage + Cookie + window.name 다중 백업)
+    function getOrInitDeviceVoterId() {
+      let id = null;
+      try { id = localStorage.getItem(voterKey); } catch {}
+      if (!id && document.cookie) {
+        const m = document.cookie.match(/(?:^|;\s*)vpdf_vid=([^;]+)/);
+        if (m) id = decodeURIComponent(m[1]);
+      }
+      if (!id && window.name && window.name.startsWith('vpdf_vid:')) {
+        id = window.name.split(':')[1] || null;
+      }
+      if (!id) {
+        id = 'v_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+      }
+      try { localStorage.setItem(voterKey, id); } catch {}
+      try { document.cookie = `vpdf_vid=${encodeURIComponent(id)}; path=/; max-age=31536000; SameSite=Lax`; } catch {}
+      try { if (!window.name) window.name = `vpdf_vid:${id}`; } catch {}
+      return id;
+    }
+
+    let deviceVoterId = getOrInitDeviceVoterId();
 
     const FONTS = [
       { id: 'malgun', label: '맑은 고딕 (시스템 기본)', css: "'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif" },
@@ -2006,6 +2103,12 @@
 
     let data = defaultState();
     let isSharedVoterMode = false;
+    // 참여자 입장 자격 상태 (1회용 티켓 코드 / 그룹 서명 / 무단 재공유 여부)
+    let voterSessionAuth = {
+      mode: 'host', // 'host' | 'onetime' | 'group' | 'legacy' | 'unauthorized_reshare'
+      ticket: null,
+      sig: null
+    };
 
     function decodePollData(encoded) {
       const json = decodeURIComponent(atob(encoded));
@@ -2029,15 +2132,48 @@
     const urlParams = new URLSearchParams(location.search);
     const shortPollParam = urlParams.get('p');
     const sharedParam = urlParams.get('v');
+    const urlTicketParam = urlParams.get('t');
+    const urlSigParam = urlParams.get('s');
 
     if (shortPollParam) {
       data.pollId = shortPollParam.trim();
       isSharedVoterMode = true;
       document.body.classList.add('voter-only-mode');
+
+      const sessionAuthKey = `vpdf_entry_auth_${data.pollId}`;
+      if (urlTicketParam) {
+        voterSessionAuth = { mode: 'onetime', ticket: urlTicketParam.trim(), sig: null };
+        try { sessionStorage.setItem(sessionAuthKey, JSON.stringify(voterSessionAuth)); } catch {}
+        // 주소창에서 1회용 티켓(?t=...) 즉시 제거하여 주소 복사 재공유 원천 차단
+        if (history.replaceState) {
+          try { history.replaceState(null, '', `${location.pathname}?p=${encodeURIComponent(data.pollId)}`); } catch {}
+        }
+      } else if (urlSigParam) {
+        if (urlSigParam.trim() === computeEntrySig(data.pollId)) {
+          voterSessionAuth = { mode: 'group', ticket: null, sig: urlSigParam.trim() };
+          try { sessionStorage.setItem(sessionAuthKey, JSON.stringify(voterSessionAuth)); } catch {}
+        } else {
+          voterSessionAuth = { mode: 'unauthorized_reshare', ticket: null, sig: null };
+        }
+        // 주소창에서 입장 서명(?s=...) 즉시 제거하여 주소창 복사 재공유 원천 차단
+        if (history.replaceState) {
+          try { history.replaceState(null, '', `${location.pathname}?p=${encodeURIComponent(data.pollId)}`); } catch {}
+        }
+      } else {
+        // URL에 티켓(t)이나 서명(s)이 없는 경우: 본인 탭 새로고침인지, 타인이 주소창을 복사해 재공유한 링크인지 판별
+        let savedAuth = null;
+        try { savedAuth = JSON.parse(sessionStorage.getItem(sessionAuthKey) || 'null'); } catch {}
+        if (savedAuth && (savedAuth.mode === 'onetime' || savedAuth.mode === 'group')) {
+          voterSessionAuth = savedAuth;
+        } else {
+          voterSessionAuth = { mode: 'unauthorized_reshare', ticket: null, sig: null };
+        }
+      }
     } else if (sharedParam) {
       try {
         data = decodePollData(sharedParam);
         isSharedVoterMode = true;
+        voterSessionAuth = { mode: 'legacy', ticket: null, sig: null };
         document.body.classList.add('voter-only-mode');
       } catch {}
     } else {
@@ -2526,10 +2662,15 @@
 
     /* =========================================================
        디지털 투표해보기 & 24시간 공유하기 & 실시간 집계 시스템
+       (1회용 티켓 자동회전 + 하드웨어/IP 지문 + 주소창 은닉 중복차단 엔진)
        ========================================================= */
     let currentChoice = null;
     let voteCounts = [];
     let votedRegistry = new Set();
+    let votedHwSet = new Set();
+    let votedNetSet = new Set();
+    let burnedTickets = new Set();
+    let claimedTickets = new Map(); // ticket -> { hwFp, ts }
     let lastDeviceVoteTimeMap = new Map();
     let sseConnection = null;
     let timerInterval = null;
@@ -2538,7 +2679,167 @@
     let wakeLockSentinel = null;
     let soundEnabled = true;
     let audioCtx = null;
+    let shareSecurityMode = 'onetime'; // 'onetime' | 'group'
+    let activeOneTimeTicket = generateTicketCode();
+    let idbVotedCache = false;
     const COOLDOWN_SECONDS = 15;
+
+    // 1. 디바이스 하드웨어 핑거프린팅 (시크릿 모드 · 타 브라우저 · 쿠키 삭제 우회 차단)
+    function computeHardwareFingerprint() {
+      const parts = [];
+      try {
+        const sw = Math.min(screen.width || 0, screen.height || 0);
+        const sh = Math.max(screen.width || 0, screen.height || 0);
+        const dpr = Math.round((window.devicePixelRatio || 1) * 100);
+        parts.push(`scr:${sw}x${sh}x${screen.colorDepth || 24}@${dpr}`);
+        parts.push(`hw:${navigator.hardwareConcurrency || 0}_${navigator.deviceMemory || 0}_${navigator.maxTouchPoints || 0}`);
+        parts.push(`pf:${navigator.platform || ''}_${Intl.DateTimeFormat().resolvedOptions().timeZone || ''}`);
+      } catch {}
+
+      let glInfo = '';
+      try {
+        const c = document.createElement('canvas');
+        const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+        if (gl) {
+          const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+          const vendor = dbg ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR);
+          const renderer = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+          glInfo = `${vendor || ''}|${renderer || ''}`;
+        }
+      } catch {}
+      parts.push(`gl:${glInfo}`);
+
+      try {
+        const cv = document.createElement('canvas');
+        cv.width = 180;
+        cv.height = 36;
+        const ctx = cv.getContext('2d');
+        if (ctx) {
+          ctx.textBaseline = 'alphabetic';
+          ctx.fillStyle = '#f60';
+          ctx.fillRect(10, 2, 60, 20);
+          ctx.fillStyle = '#069';
+          ctx.font = '14px Arial, sans-serif';
+          ctx.fillText('VotePDF🇰🇷卜#9', 4, 22);
+          ctx.strokeStyle = 'rgba(120, 186, 0, 0.7)';
+          ctx.beginPath();
+          ctx.arc(50, 18, 12, 0, Math.PI * 2, true);
+          ctx.stroke();
+          parts.push(`cv:${cyrb53(cv.toDataURL(), 13)}`);
+        }
+      } catch {}
+
+      return 'hw_' + cyrb53(parts.join('||'), 99);
+    }
+
+    const myHwFp = computeHardwareFingerprint();
+    let myNetFp = '';
+
+    // 2. 공인 IP + 물리 기기 규격 결합 지문 (동일 스마트폰 내 카톡 인앱 ↔ 크롬/사파리 교차 중복투표 차단)
+    async function initNetworkDeviceFingerprint() {
+      let ip = '';
+      try {
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 1600);
+        const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace', { signal: ctrl.signal });
+        clearTimeout(tid);
+        if (res.ok) {
+          const txt = await res.text();
+          const m = txt.match(/ip=([^\r\n]+)/);
+          if (m) ip = m[1].trim();
+        }
+      } catch {}
+
+      if (!ip) {
+        try {
+          const ctrl2 = new AbortController();
+          const tid2 = setTimeout(() => ctrl2.abort(), 1500);
+          const res2 = await fetch('https://api.ipify.org?format=json', { signal: ctrl2.signal });
+          clearTimeout(tid2);
+          if (res2.ok) {
+            const j = await res2.json();
+            if (j && j.ip) ip = String(j.ip).trim();
+          }
+        } catch {}
+      }
+
+      if (ip) {
+        const sw = Math.min(screen.width || 0, screen.height || 0);
+        const sh = Math.max(screen.width || 0, screen.height || 0);
+        const dpr = Math.round((window.devicePixelRatio || 1) * 100);
+        myNetFp = 'net_' + cyrb53(`${ip}|${sw}x${sh}@${dpr}|${navigator.platform || ''}|${navigator.maxTouchPoints || 0}`, 42);
+        if (el('digital-overlay') && el('digital-overlay').classList.contains('open')) {
+          renderInteractiveBallot();
+        }
+      }
+    }
+    initNetworkDeviceFingerprint();
+
+    // 3. IndexedDB + Cookie + localStorage + window.name 4중 영구 투표 기록
+    function checkIndexedDBVoted(pollId) {
+      return new Promise(resolve => {
+        if (!window.indexedDB) return resolve(false);
+        try {
+          const req = indexedDB.open('votePDF_SecDB', 1);
+          req.onupgradeneeded = e => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('votes')) {
+              db.createObjectStore('votes');
+            }
+          };
+          req.onsuccess = e => {
+            try {
+              const db = e.target.result;
+              const tx = db.transaction('votes', 'readonly');
+              const getReq = tx.objectStore('votes').get(`voted_${pollId}`);
+              getReq.onsuccess = () => resolve(getReq.result === '1');
+              getReq.onerror = () => resolve(false);
+            } catch { resolve(false); }
+          };
+          req.onerror = () => resolve(false);
+        } catch { resolve(false); }
+      });
+    }
+
+    function writeIndexedDBVoted(pollId) {
+      if (!window.indexedDB) return;
+      try {
+        const req = indexedDB.open('votePDF_SecDB', 1);
+        req.onupgradeneeded = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('votes')) {
+            db.createObjectStore('votes');
+          }
+        };
+        req.onsuccess = e => {
+          try {
+            const db = e.target.result;
+            const tx = db.transaction('votes', 'readwrite');
+            tx.objectStore('votes').put('1', `voted_${pollId}`);
+          } catch {}
+        };
+      } catch {}
+    }
+
+    function markDeviceVotedAllLayers() {
+      const vKey = getLocalVotedKey();
+      idbVotedCache = true;
+      try { localStorage.setItem(vKey, '1'); } catch {}
+      try { sessionStorage.setItem(vKey, '1'); } catch {}
+      try { document.cookie = `${vKey}=1; path=/; max-age=2592000; SameSite=Lax`; } catch {}
+      writeIndexedDBVoted(data.pollId);
+    }
+
+    function hasDeviceVotedLocally() {
+      const vKey = getLocalVotedKey();
+      if (idbVotedCache) return true;
+      try { if (localStorage.getItem(vKey) === '1') return true; } catch {}
+      try { if (sessionStorage.getItem(vKey) === '1') return true; } catch {}
+      try {
+        if (document.cookie && document.cookie.includes(`${vKey}=1`)) return true;
+      } catch {}
+      return false;
+    }
 
     function getTopicName() {
       return `votepdf_kr_${data.pollId}`;
@@ -2559,6 +2860,53 @@
 
     function isPollExpired() {
       return Date.now() > (Number(data.expiresAt) || 0);
+    }
+
+    // 현재 참여자의 중복투표 및 무단 재공유 차단 사유 판별
+    function getVoterBlockStatus() {
+      const isKiosk = el('kiosk-mode-toggle').checked || document.body.classList.contains('kiosk-fullscreen-mode');
+      if (isKiosk) return null;
+
+      // 1) 주소창 URL 단순 복사 재공유 차단 (티켓이나 서명이 없는 링크)
+      if (isSharedVoterMode && voterSessionAuth.mode === 'unauthorized_reshare') {
+        return {
+          code: 'reshared_url',
+          msg: '🚫 주소창을 복사해 재공유된 링크입니다! 공식 배포된 QR코드나 원본 공유 링크로만 참여할 수 있습니다.'
+        };
+      }
+
+      // 2) 이 기기에서 이미 투표 완료한 경우 (로컬 4중 저장소 + 서버 하드웨어 지문 + 공인 IP 기기 지문)
+      const votedOnLedger =
+        votedRegistry.has(deviceVoterId) ||
+        (myHwFp && votedHwSet.has(myHwFp)) ||
+        (myNetFp && votedNetSet.has(myNetFp));
+
+      if (hasDeviceVotedLocally() || votedOnLedger) {
+        return {
+          code: 'already_voted_device',
+          msg: '✅ 이미 이 기기에서 투표에 참여하셨습니다. (시크릿 모드·브라우저 변경·재스캔 중복투표가 차단됩니다)'
+        };
+      }
+
+      // 3) 1회용 스마트 QR 티켓(t) 검증: 이미 투표에 사용(소각)되었거나 다른 기기가 먼저 스캔해 선점한 경우
+      if (isSharedVoterMode && voterSessionAuth.mode === 'onetime' && voterSessionAuth.ticket) {
+        const tk = voterSessionAuth.ticket;
+        if (burnedTickets.has(tk)) {
+          return {
+            code: 'ticket_burned',
+            msg: '🚫 이미 1회 투표가 완료되어 영구 폐기된 QR코드입니다. (재공유 및 재투표 불가)'
+          };
+        }
+        const claimInfo = claimedTickets.get(tk);
+        if (claimInfo && claimInfo.hwFp && claimInfo.hwFp !== myHwFp && (Date.now() - claimInfo.ts < 10 * 60 * 1000)) {
+          return {
+            code: 'ticket_claimed_other',
+            msg: '🚫 이미 다른 스마트폰에서 먼저 스캔하여 사용 중인 1회용 QR코드입니다. (캡처·재공유 차단됨)'
+          };
+        }
+      }
+
+      return null;
     }
 
     // Web Audio API 합성 효과음 (별도 오디오 파일 불필요)
@@ -2660,8 +3008,9 @@
       const isModalOpen = el('digital-overlay').classList.contains('open');
       const isVoteTab = el('view-vote').style.display !== 'none';
       const inCooldown = getRemainingCooldownMs() > 0;
+      const blockStatus = getVoterBlockStatus();
 
-      if (!isModalOpen || !isVoteTab || currentChoice === null || isPollExpired() || inCooldown) {
+      if (!isModalOpen || !isVoteTab || currentChoice === null || isPollExpired() || inCooldown || blockStatus) {
         bar.classList.remove('visible');
         return;
       }
@@ -2724,17 +3073,16 @@
 
       const notice = el('selected-candidate-notice');
       const submitBtn = el('submit-vote-btn');
-      const isKiosk = el('kiosk-mode-toggle').checked || document.body.classList.contains('kiosk-fullscreen-mode');
-      const alreadyVoted = !isKiosk && localStorage.getItem(getLocalVotedKey()) === '1';
       const inCooldown = getRemainingCooldownMs() > 0;
+      const blockStatus = getVoterBlockStatus();
 
       if (inCooldown) {
         notice.style.color = '#0284c7';
         notice.textContent = '⏳ 중복투표 방지를 위해 15초 대기 중입니다...';
         submitBtn.disabled = true;
-      } else if (alreadyVoted) {
-        notice.style.color = '#15803d';
-        notice.textContent = '✅ 이미 이 투표에 참여하셨습니다. (집계 페이지에서 결과를 확인하세요)';
+      } else if (blockStatus) {
+        notice.style.color = blockStatus.code === 'already_voted_device' ? '#15803d' : '#b91c1c';
+        notice.textContent = blockStatus.msg;
         submitBtn.disabled = true;
       } else if (isPollExpired()) {
         notice.style.color = '#b91c1c';
@@ -2761,9 +3109,9 @@
       container.querySelectorAll('[data-choice]').forEach(elem => {
         elem.addEventListener('click', () => {
           if (isPollExpired() || getRemainingCooldownMs() > 0) return;
-          const kioskActive = el('kiosk-mode-toggle').checked || document.body.classList.contains('kiosk-fullscreen-mode');
-          if (!kioskActive && localStorage.getItem(getLocalVotedKey()) === '1') {
-            alert('이미 투표에 참여하셨습니다! 한 기기에서 여러 명이 이어서 투표하려면 [현장 키오스크 모드]를 켜주세요.');
+          const blk = getVoterBlockStatus();
+          if (blk) {
+            alert(blk.msg);
             return;
           }
           currentChoice = Number(elem.dataset.choice);
@@ -2780,7 +3128,52 @@
       const slots = data.quantity === 1 ? 2 : data.quantity;
       voteCounts = Array(slots).fill(0);
       votedRegistry = new Set();
+      votedHwSet = new Set();
+      votedNetSet = new Set();
+      burnedTickets = new Set();
+      claimedTickets = new Map();
       lastDeviceVoteTimeMap = new Map();
+    }
+
+    // 1회용 스마트 QR 스캔 시 서버에 즉시 선점(Claim) 신호를 보내 관리자 화면 QR을 자동 회전시킴
+    async function announceTicketClaimIfNeeded() {
+      if (!isSharedVoterMode || voterSessionAuth.mode !== 'onetime' || !voterSessionAuth.ticket) return;
+      const tk = voterSessionAuth.ticket;
+      if (burnedTickets.has(tk)) return;
+      const claimSentKey = `vpdf_claim_sent_${data.pollId}_${tk}`;
+      if (sessionStorage.getItem(claimSentKey) === '1') return;
+      try { sessionStorage.setItem(claimSentKey, '1'); } catch {}
+
+      const claimPayload = JSON.stringify({
+        type: 'claim',
+        ticket: tk,
+        hwFp: myHwFp,
+        ts: Date.now()
+      });
+      processVoteMessage(claimPayload);
+      try {
+        await fetch(`https://ntfy.sh/${getTopicName()}`, {
+          method: 'POST',
+          body: claimPayload
+        });
+      } catch {}
+    }
+
+    // 관리자 화면: 현재 표시된 1회용 QR 티켓이 스캔되거나 투표되면 자동으로 새 티켓 QR로 회전
+    function rotateActiveTicket(reasonText = '🔄 스캔 감지 → 새 1회용 티켓 자동 발급됨') {
+      let nextTk = generateTicketCode();
+      while (burnedTickets.has(nextTk) || claimedTickets.has(nextTk) || nextTk === activeOneTimeTicket) {
+        nextTk = generateTicketCode();
+      }
+      activeOneTimeTicket = nextTk;
+      if (!isSharedVoterMode && shareSecurityMode === 'onetime') {
+        updateShareLinkBox(reasonText);
+        const qrImg = el('share-qr-img');
+        if (qrImg) {
+          qrImg.classList.add('qr-rotated');
+          setTimeout(() => qrImg.classList.remove('qr-rotated'), 500);
+        }
+      }
     }
 
     async function publishPollConfig(force = false) {
@@ -2818,6 +3211,20 @@
           initVoteCounts();
           return;
         }
+        if (parsed.type === 'claim' && parsed.ticket) {
+          const tk = String(parsed.ticket);
+          if (!claimedTickets.has(tk)) {
+            claimedTickets.set(tk, { hwFp: parsed.hwFp || '', ts: Number(parsed.ts) || Date.now() });
+          }
+          // 관리자가 띄워둔 1회용 QR이 스캔(Claim)되는 즉시 다음 사람을 위해 새 1회용 QR로 무인 자동 교체!
+          if (!isSharedVoterMode && tk === activeOneTimeTicket) {
+            rotateActiveTicket(`🔄 스캔 감지됨 → 새 티켓(#${activeOneTimeTicket.toUpperCase()}) 자동 갱신!`);
+          }
+          if (isSharedVoterMode) {
+            renderInteractiveBallot();
+          }
+          return;
+        }
         if (parsed.type === 'config' && isSharedVoterMode) {
           const prevQ = data.quantity;
           data.title = typeof parsed.t === 'string' ? parsed.t.slice(0, 100) : data.title;
@@ -2845,9 +3252,27 @@
           const slots = data.quantity === 1 ? 2 : data.quantity;
           if (parsed.choice >= 0 && parsed.choice < slots) {
             const vKey = parsed.voterId || ('anon_' + Math.random());
+            const isKioskVote = String(vKey).includes('_kiosk_');
+
             if (votedRegistry.has(vKey)) return;
 
-            // 동일 물리 기기(deviceBaseId)에서 14초 이내 연속 투표 패킷은 물리적으로 필터링
+            // 1) 1회용 티켓 중복 사용 검증: 이미 소각된 티켓으로 들어온 투표 패킷은 집계에서 거부
+            if (parsed.ticket) {
+              const tk = String(parsed.ticket);
+              if (burnedTickets.has(tk)) return;
+              burnedTickets.add(tk);
+              if (!isSharedVoterMode && tk === activeOneTimeTicket) {
+                rotateActiveTicket(`✅ 1회 투표 완료 → 새 티켓(#${activeOneTimeTicket.toUpperCase()}) 자동 발급!`);
+              }
+            }
+
+            // 2) 비-키오스크(일반 공유 투표)일 때 하드웨어 지문(hwFp) 및 공인IP+기기 지문(netFp) 중복 검증
+            if (!isKioskVote) {
+              if (parsed.hwFp && votedHwSet.has(parsed.hwFp)) return;
+              if (parsed.netFp && votedNetSet.has(parsed.netFp)) return;
+            }
+
+            // 3) 동일 물리 기기(deviceBaseId)에서 14초 이내 연속 투표 패킷은 물리적으로 필터링
             const deviceBase = String(vKey).split('_kiosk_')[0];
             const voteTs = Number(parsed.ts) || 0;
             if (deviceBase && voteTs > 0) {
@@ -2859,6 +3284,10 @@
             }
 
             votedRegistry.add(vKey);
+            if (!isKioskVote) {
+              if (parsed.hwFp) votedHwSet.add(parsed.hwFp);
+              if (parsed.netFp) votedNetSet.add(parsed.netFp);
+            }
             voteCounts[parsed.choice] = (voteCounts[parsed.choice] || 0) + 1;
           }
         }
@@ -2867,6 +3296,7 @@
 
     async function fetchAllVotes() {
       initVoteCounts();
+      idbVotedCache = await checkIndexedDBVoted(data.pollId);
       const topic = getTopicName();
       try {
         const res = await fetch(`https://ntfy.sh/${topic}/json?poll=1&since=all`);
@@ -2883,6 +3313,8 @@
           }
         }
       } catch {}
+      await announceTicketClaimIfNeeded();
+      renderInteractiveBallot();
       renderResultsUI();
     }
 
@@ -2899,6 +3331,7 @@
             const ev = JSON.parse(e.data);
             if (ev.event === 'message' && ev.message) {
               processVoteMessage(ev.message);
+              renderInteractiveBallot();
               renderResultsUI();
             }
           } catch {}
@@ -2949,12 +3382,14 @@
     // 투표 제출 공통 함수 (하단 플로팅 [예] 버튼 & 우측 [기표함에 넣기] 버튼 공유)
     async function executeVoteSubmit() {
       if (currentChoice === null || isPollExpired() || getRemainingCooldownMs() > 0) return;
-      const isKiosk = el('kiosk-mode-toggle').checked || document.body.classList.contains('kiosk-fullscreen-mode');
-      if (!isKiosk && localStorage.getItem(getLocalVotedKey()) === '1') {
-        alert('이미 투표하셨습니다.');
+      const blk = getVoterBlockStatus();
+      if (blk) {
+        alert(blk.msg);
+        renderInteractiveBallot();
         return;
       }
 
+      const isKiosk = el('kiosk-mode-toggle').checked || document.body.classList.contains('kiosk-fullscreen-mode');
       const submitBtn = el('submit-vote-btn');
       const floatYesBtn = el('floating-yes-btn');
       submitBtn.disabled = true;
@@ -2977,20 +3412,26 @@
         ? `${deviceVoterId}_kiosk_${nowTs}_${Math.random().toString(36).slice(2, 6)}`
         : deviceVoterId;
 
-      const payload = JSON.stringify({
+      const voteObj = {
         type: 'vote',
         choice: chosenIdx,
         voterId: voterToken,
+        hwFp: isKiosk ? '' : myHwFp,
+        netFp: isKiosk ? '' : myNetFp,
+        ticket: (isSharedVoterMode && voterSessionAuth.mode === 'onetime' && voterSessionAuth.ticket)
+          ? voterSessionAuth.ticket
+          : undefined,
         ts: nowTs
-      });
+      };
+      const payload = JSON.stringify(voteObj);
 
       // 15초 물리적 쿨다운 즉시 가동 (입퇴장 시간 동안 중복투표 원천 차단)
       startCooldown(COOLDOWN_SECONDS);
 
-      processVoteMessage(payload);
       if (!isKiosk) {
-        try { localStorage.setItem(getLocalVotedKey(), '1'); } catch {}
+        markDeviceVotedAllLayers();
       }
+      processVoteMessage(payload);
 
       try {
         await fetch(`https://ntfy.sh/${getTopicName()}`, {
@@ -3082,12 +3523,26 @@
     addEventListener('mouseup', cancelUnlockHold);
     addEventListener('touchend', cancelUnlockHold);
 
-    // 공유 링크 및 QR코드 표시 (단축 ID ?p=pollId 사용으로 초간편 QR코드 생성)
-    function updateShareLinkBox() {
+    // 공유 링크 및 QR코드 표시 (1회용 티켓 자동회전 모드 vs 단톡방 다인 고정서명 모드)
+    function updateShareLinkBox(statusOverride = '') {
       const baseUrl = (location.protocol === 'http:' || location.protocol === 'https:')
         ? (location.origin + location.pathname)
         : 'https://poeticecho.github.io/votePDF/';
-      const shareUrl = `${baseUrl}?p=${encodeURIComponent(data.pollId)}`;
+
+      let shareUrl = '';
+      if (shareSecurityMode === 'onetime') {
+        shareUrl = `${baseUrl}?p=${encodeURIComponent(data.pollId)}&t=${encodeURIComponent(activeOneTimeTicket)}`;
+        el('qr-mode-title').textContent = '🎫 1회용 스마트 QR (스캔·투표 시 자동 교체)';
+        el('qr-mode-desc').textContent = '1명이 스캔·투표하면 해당 QR은 즉시 폐기(재공유·재투표 불가)되고, 하단 QR코드가 다음 티켓으로 자동 갱신됩니다.';
+        el('ticket-status-pill').textContent = statusOverride || `🛡️ 1회용 티켓 #${activeOneTimeTicket.toUpperCase()} 활성 중 (자동 회전 대기)`;
+      } else {
+        const sig = computeEntrySig(data.pollId);
+        shareUrl = `${baseUrl}?p=${encodeURIComponent(data.pollId)}&s=${encodeURIComponent(sig)}`;
+        el('qr-mode-title').textContent = '👥 단톡방·유인물 다인 공용 QR/링크';
+        el('qr-mode-desc').textContent = '링크 1개로 여러 명이 투표하되, 하드웨어/IP 지문과 주소창 서명 은닉으로 1기기 1표만 허용하고 무단 재공유를 차단합니다.';
+        el('ticket-status-pill').textContent = statusOverride || `🛡️ 기기 지문 1인1표 & 주소복사 재공유 차단 작동 중`;
+      }
+
       el('share-link-area').style.display = 'block';
       el('share-url-input').value = shareUrl;
       el('share-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&ecc=L&margin=6&data=${encodeURIComponent(shareUrl)}`;
@@ -3095,11 +3550,22 @@
       el('share-expire-label').textContent = `마감 시각: ${expDate.toLocaleString('ko-KR')} 까지 (24시간)`;
     }
 
+    el('share-mode-tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.share-mode-btn');
+      if (!btn) return;
+      shareSecurityMode = btn.dataset.shareMode || 'onetime';
+      document.querySelectorAll('#share-mode-tabs .share-mode-btn').forEach(b => {
+        b.classList.toggle('active', b === btn);
+      });
+      updateShareLinkBox();
+    });
+
     el('create-share-btn').addEventListener('click', async () => {
       data.expiresAt = Date.now() + 24 * 60 * 60 * 1000;
+      activeOneTimeTicket = generateTicketCode();
       save();
       updateTimerUI();
-      updateShareLinkBox();
+      updateShareLinkBox('✨ 24시간 연장 및 새 보안 티켓이 발급되었습니다');
       await publishPollConfig(true);
     });
 
@@ -3112,6 +3578,12 @@
         setTimeout(() => { el('copy-share-btn').textContent = '복사'; }, 1800);
       } catch {
         document.execCommand('copy');
+      }
+      // 1회용 스마트 티켓 모드에서 링크를 복사해 보낸 경우, 다음 사람을 위해 즉시 새 1회용 티켓으로 자동 회전!
+      if (shareSecurityMode === 'onetime') {
+        setTimeout(() => {
+          rotateActiveTicket('📋 방금 복사한 1회용 링크 분리 완료 → 새 티켓 준비됨');
+        }, 350);
       }
     });
 
@@ -3137,7 +3609,9 @@
       if (!confirm('현재 집계를 모두 0표로 초기화하고 새로운 24시간 투표함을 열까요?')) return;
       data.pollId = randomPollId();
       data.expiresAt = Date.now() + 24 * 60 * 60 * 1000;
+      activeOneTimeTicket = generateTicketCode();
       currentChoice = null;
+      idbVotedCache = false;
       save();
       initVoteCounts();
       renderInteractiveBallot();
