@@ -618,20 +618,19 @@
       height: 20mm;
     }
 
-    /* 첨부 1번 그림: 후보자 칸 사이 여백 (선관위 분리형 양식) */
+    /* 첨부 1번 그림: 후보자 칸 사이 여백 (여백 구간 테두리는 보이지 않게 처리) */
     .ballot.row-gap-on table:not(.approval-table) {
       border-collapse: separate;
-      border-spacing: 0 2.2mm;
-      border-left: 0.3mm solid #222;
-      border-right: 0.3mm solid #222;
-      border-top: 0.3mm solid #222;
-      border-bottom: 0.3mm solid #222;
-      padding: 1.5mm 0;
+      border-spacing: 0 2mm;
+      margin: -2mm 0;
+      border: 0;
+      padding: 0;
     }
 
     .rows-2 .ballot.row-gap-on table:not(.approval-table) {
       border-spacing: 0 1.4mm;
-      padding: 1mm 0;
+      margin: -1.4mm 0;
+      padding: 0;
     }
 
     .ballot.row-gap-on table:not(.approval-table) th,
@@ -642,14 +641,9 @@
       border-left: 0;
     }
 
-    .ballot.row-gap-on table:not(.approval-table) th:last-child,
-    .ballot.row-gap-on table:not(.approval-table) td:last-child {
-      border-right: 0;
-    }
-
-    /* 기표 칸 강조 */
-    .ballot.row-gap-on table:not(.approval-table) td.stamp-cell {
-      box-shadow: inset 0 0 0 0.15mm #222;
+    .ballot.row-gap-on table:not(.approval-table) th:first-child,
+    .ballot.row-gap-on table:not(.approval-table) td:first-child {
+      border-left: 0.3mm solid #222;
     }
 
     .q-7 .ballot.row-gap-on td,
@@ -1672,7 +1666,7 @@
     const clean = s => chars(String(s || '').replace(/[\r\n\t]/g, '')).slice(0, 10).join('');
 
     function randomPollId() {
-      return 'vp' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+      return Math.random().toString(36).slice(2, 6) + Date.now().toString(36).slice(-2);
     }
 
     const defaultState = () => ({
@@ -1690,24 +1684,6 @@
 
     let data = defaultState();
     let isSharedVoterMode = false;
-
-    // URL 공유 파라미터(?v=...) 파싱 또는 localStorage 복원
-    function encodePollData(obj) {
-      const minimal = {
-        t: obj.title,
-        q: obj.quantity,
-        p: obj.party ? 1 : 0,
-        l: obj.layoutMode,
-        n: obj.names.slice(0, obj.quantity),
-        pa: obj.party ? obj.parties.slice(0, obj.quantity) : [],
-        s: obj.style,
-        o: obj.official,
-        id: obj.pollId,
-        ex: obj.expiresAt
-      };
-      const json = JSON.stringify(minimal);
-      return btoa(encodeURIComponent(json));
-    }
 
     function decodePollData(encoded) {
       const json = decodeURIComponent(atob(encoded));
@@ -1729,9 +1705,14 @@
     }
 
     const urlParams = new URLSearchParams(location.search);
+    const shortPollParam = urlParams.get('p');
     const sharedParam = urlParams.get('v');
 
-    if (sharedParam) {
+    if (shortPollParam) {
+      data.pollId = shortPollParam.trim();
+      isSharedVoterMode = true;
+      document.body.classList.add('voter-only-mode');
+    } else if (sharedParam) {
       try {
         data = decodePollData(sharedParam);
         isSharedVoterMode = true;
@@ -1752,7 +1733,7 @@
             parties: Array.from({ length: 8 }, (_, i) => clean(saved.parties?.[i] ?? base.parties[i] ?? '')),
             style: { ...DEFAULT_STYLE, ...(saved.style || {}) },
             official: { ...DEFAULT_OFFICIAL, ...(saved.official || {}) },
-            pollId: saved.pollId || randomPollId(),
+            pollId: (saved.pollId && saved.pollId.length <= 8) ? saved.pollId : randomPollId(),
             expiresAt: Number(saved.expiresAt) || (Date.now() + 24 * 60 * 60 * 1000)
           };
         }
@@ -2317,11 +2298,62 @@
       votedRegistry = new Set();
     }
 
+    async function publishPollConfig(force = false) {
+      if (isSharedVoterMode) return;
+      const cfgObj = {
+        type: 'config',
+        t: data.title,
+        q: data.quantity,
+        p: data.party ? 1 : 0,
+        l: data.layoutMode,
+        n: data.names.slice(0, data.quantity),
+        pa: data.party ? data.parties.slice(0, data.quantity) : [],
+        s: data.style,
+        o: data.official,
+        ex: data.expiresAt
+      };
+      const cfgStr = JSON.stringify(cfgObj);
+      const cacheKey = `vpdf_cfg_sent_${data.pollId}`;
+      if (!force && localStorage.getItem(cacheKey) === cfgStr) return;
+      try {
+        const res = await fetch(`https://ntfy.sh/${getTopicName()}`, {
+          method: 'POST',
+          body: cfgStr
+        });
+        if (res.ok) {
+          try { localStorage.setItem(cacheKey, cfgStr); } catch {}
+        }
+      } catch {}
+    }
+
     function processVoteMessage(rawMsg) {
       try {
         const parsed = JSON.parse(rawMsg);
         if (parsed.type === 'reset') {
           initVoteCounts();
+          return;
+        }
+        if (parsed.type === 'config' && isSharedVoterMode) {
+          const prevQ = data.quantity;
+          data.title = typeof parsed.t === 'string' ? parsed.t.slice(0, 100) : data.title;
+          data.quantity = Math.min(8, Math.max(1, Number(parsed.q) || 4));
+          data.party = !!parsed.p;
+          data.layoutMode = parsed.l || 'auto';
+          data.names = Array.from({ length: 8 }, (_, i) => clean(parsed.n?.[i] ?? defaults[i]));
+          data.parties = Array.from({ length: 8 }, (_, i) => clean(parsed.pa?.[i] ?? ''));
+          data.style = { ...DEFAULT_STYLE, ...(parsed.s || {}) };
+          data.official = { ...DEFAULT_OFFICIAL, ...(parsed.o || {}) };
+          data.expiresAt = Number(parsed.ex) || data.expiresAt;
+          if (prevQ !== data.quantity) {
+            const slots = data.quantity === 1 ? 2 : data.quantity;
+            if (voteCounts.length !== slots) {
+              voteCounts = Array(slots).fill(0);
+            }
+          }
+          applyTypographyVariables();
+          el('digital-modal-title').textContent = `🗳️ ${data.title.trim() || '디지털 투표소'}`;
+          updateTimerUI();
+          renderInteractiveBallot();
           return;
         }
         if (parsed.type === 'vote' && typeof parsed.choice === 'number') {
@@ -2471,25 +2503,25 @@
       renderInteractiveBallot();
     });
 
-    // 공유 링크 및 QR코드 표시
+    // 공유 링크 및 QR코드 표시 (단축 ID ?p=pollId 사용으로 초간편 QR코드 생성)
     function updateShareLinkBox() {
       const baseUrl = (location.protocol === 'http:' || location.protocol === 'https:')
         ? (location.origin + location.pathname)
         : 'https://poeticecho.github.io/votePDF/';
-      const encoded = encodePollData(data);
-      const shareUrl = `${baseUrl}?v=${encodeURIComponent(encoded)}`;
+      const shareUrl = `${baseUrl}?p=${encodeURIComponent(data.pollId)}`;
       el('share-link-area').style.display = 'block';
       el('share-url-input').value = shareUrl;
-      el('share-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(shareUrl)}`;
+      el('share-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&ecc=L&margin=6&data=${encodeURIComponent(shareUrl)}`;
       const expDate = new Date(Number(data.expiresAt));
       el('share-expire-label').textContent = `마감 시각: ${expDate.toLocaleString('ko-KR')} 까지 (24시간)`;
     }
 
-    el('create-share-btn').addEventListener('click', () => {
+    el('create-share-btn').addEventListener('click', async () => {
       data.expiresAt = Date.now() + 24 * 60 * 60 * 1000;
       save();
       updateTimerUI();
       updateShareLinkBox();
+      await publishPollConfig(true);
     });
 
     el('copy-share-btn').addEventListener('click', async () => {
@@ -2531,16 +2563,18 @@
       renderInteractiveBallot();
       renderResultsUI();
       updateShareLinkBox();
+      await publishPollConfig(true);
       connectLiveSSE();
     });
 
-    function openDigitalModal() {
+    async function openDigitalModal() {
       el('digital-overlay').classList.add('open');
       currentChoice = null;
       updateTimerUI();
       renderInteractiveBallot();
       updateShareLinkBox();
-      fetchAllVotes();
+      await publishPollConfig(false);
+      await fetchAllVotes();
       connectLiveSSE();
       if (!timerInterval) {
         timerInterval = setInterval(updateTimerUI, 1000);
