@@ -1260,6 +1260,264 @@
       display: none;
     }
 
+    /* ==========================================
+       현장 키오스크 전체화면 모드 & 하단 플로팅 확인 바 & 15초 쿨다운
+       ========================================== */
+    body.kiosk-fullscreen-mode .digital-overlay {
+      padding: 0;
+      background: #0f172a;
+    }
+
+    body.kiosk-fullscreen-mode .digital-card {
+      max-width: 100%;
+      min-height: 100vh;
+      border-radius: 0;
+      display: flex;
+      flex-direction: column;
+      background: #f1f5f9;
+    }
+
+    body.kiosk-fullscreen-mode .digital-tabs,
+    body.kiosk-fullscreen-mode .close-modal-btn,
+    body.kiosk-fullscreen-mode .booth-side {
+      display: none !important;
+    }
+
+    body.kiosk-fullscreen-mode .booth-layout {
+      grid-template-columns: 1fr;
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    body.kiosk-fullscreen-mode .interactive-ballot-box {
+      background: transparent;
+      padding: 10px 10px 90px;
+    }
+
+    body.kiosk-fullscreen-mode .interactive-ballot-box .ballot {
+      max-width: 380px;
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.22);
+    }
+
+    .kiosk-top-controls {
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    body.kiosk-fullscreen-mode .kiosk-top-controls {
+      display: flex;
+    }
+
+    .kiosk-unlock-btn {
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      font-size: 12.5px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .kiosk-unlock-btn .hold-bar {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 3px;
+      width: 0%;
+      background: #fde047;
+      transition: width 0.1s linear;
+    }
+
+    /* 투표지 접혀서 투표함에 들어가는 비밀투표 애니메이션 */
+    .interactive-ballot-box .ballot.folding {
+      animation: ballotFoldIn 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes ballotFoldIn {
+      0% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+      45% {
+        transform: scaleY(0.35) scaleX(0.92) translateY(20px);
+        opacity: 0.9;
+      }
+      100% {
+        transform: scaleY(0.05) scaleX(0.75) translateY(180px);
+        opacity: 0;
+      }
+    }
+
+    /* 하단 플로팅 기표 확인 바 (모바일 세로모드 & 키오스크 공통) */
+    .floating-confirm-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1200;
+      background: rgba(15, 23, 42, 0.96);
+      color: #fff;
+      padding: 14px 18px calc(14px + env(safe-area-inset-bottom, 0px));
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.35);
+      transform: translateY(120%);
+      transition: transform 0.24s cubic-bezier(0.2, 0.9, 0.3, 1);
+      display: flex;
+      justify-content: center;
+    }
+
+    .floating-confirm-bar.visible {
+      transform: translateY(0);
+    }
+
+    .floating-confirm-inner {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .floating-confirm-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .floating-confirm-text small {
+      font-size: 12px;
+      color: #fca5a5;
+      font-weight: 700;
+    }
+
+    .floating-confirm-text b {
+      font-size: 15.5px;
+      color: #fff;
+    }
+
+    .floating-confirm-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .floating-yes-btn {
+      background: #dc2626;
+      border-color: #dc2626;
+      color: #fff;
+      padding: 11px 22px;
+      font-size: 15px;
+      font-weight: 800;
+      border-radius: 9px;
+    }
+
+    .floating-yes-btn:hover {
+      background: #b91c1c;
+    }
+
+    .floating-reselect-btn {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #fff;
+      padding: 11px 16px;
+      font-size: 14px;
+      border-radius: 9px;
+    }
+
+    .floating-reselect-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* 15초 물리적 중복투표 방지 쿨다운 오버레이 */
+    .kiosk-cooldown-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1300;
+      background: rgba(15, 23, 42, 0.94);
+      color: #fff;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      user-select: none;
+    }
+
+    .kiosk-cooldown-overlay.active {
+      display: flex;
+    }
+
+    .cooldown-box {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      padding: 34px 28px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    .cooldown-icon {
+      font-size: 46px;
+      margin-bottom: 10px;
+    }
+
+    .cooldown-box h3 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      color: #4ade80;
+    }
+
+    .cooldown-box p {
+      margin: 0 0 20px;
+      font-size: 14px;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .cooldown-count-circle {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 4px solid #38bdf8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+      background: rgba(56, 189, 248, 0.1);
+    }
+
+    .cooldown-count-circle small {
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    .cooldown-progress-track {
+      width: 100%;
+      height: 8px;
+      background: #0f172a;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .cooldown-progress-bar {
+      height: 100%;
+      background: #38bdf8;
+      width: 100%;
+      transition: width 0.25s linear;
+    }
+
     @media (max-width: 900px) {
       .top {
         align-items: flex-start;
@@ -1279,6 +1537,21 @@
       .preview-scroll {
         padding: 10px;
         min-height: 350px;
+      }
+      .interactive-ballot-box {
+        padding-bottom: 84px;
+      }
+      .floating-confirm-inner {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+      .floating-confirm-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .floating-confirm-actions button {
+        justify-content: center;
       }
     }
 
@@ -1308,7 +1581,9 @@
       .panel,
       .caption,
       .support,
-      .digital-overlay {
+      .digital-overlay,
+      .floating-confirm-bar,
+      .kiosk-cooldown-overlay {
         display: none !important;
       }
       .sheet {
@@ -1519,6 +1794,13 @@
       <div class="digital-header">
         <h2 id="digital-modal-title">🗳️ 디지털 투표소 & 실시간 집계</h2>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="kiosk-top-controls">
+            <button type="button" class="kiosk-unlock-btn" id="sound-toggle-btn">🔊 효과음 켜짐</button>
+            <button type="button" class="kiosk-unlock-btn" id="kiosk-unlock-btn" title="2초간 길게 누르면 관리자 화면 및 집계 페이지로 돌아갑니다">
+              🔒 관리자 종료 (2초 길게 누르기)
+              <span class="hold-bar" id="kiosk-hold-bar"></span>
+            </button>
+          </div>
           <div class="digital-tabs">
             <button type="button" class="tab-btn active" id="tab-vote-btn">기표하기 (투표용지)</button>
             <button type="button" class="tab-btn" id="tab-result-btn">📊 실시간 집계 페이지</button>
@@ -1534,7 +1816,7 @@
             <div class="interactive-ballot-box">
               <div id="interactive-ballot-target" style="width:100%;display:flex;justify-content:center"></div>
               <p class="note" style="text-align:center;margin-top:12px;color:#334155;font-weight:700">
-                👆 위 투표용지에서 원하는 후보(또는 찬성/반대) 칸을 클릭해 기표 도장을 찍으세요!
+                👆 위 투표용지에서 원하는 후보(또는 찬성/반대) 칸을 터치해 기표 도장을 찍으세요!
               </p>
             </div>
 
@@ -1545,24 +1827,31 @@
               </div>
 
               <div class="vote-action-box">
-                <h3>1. 내 기표 확인 및 제출</h3>
+                <h3>1. 내 기표 확인 및 현장 키오스크</h3>
                 <p class="note" style="margin-top:2px">
-                  실제 대한민국 선거 기표용구(점 복 `卜` 원형 도장)가 찍힙니다. 후보자 칸 사이의 여백 덕분에 어느 후보에게 기표했는지 명확히 구분됩니다.
+                  투표용지 칸을 누르면 하단에 <b>[예] / [다시선택]</b> 확인 바가 나타나며, 투표 후에는 <b>15초 동안 물리적으로 중복투표가 차단</b>됩니다.
                 </p>
                 <div class="selected-notice" id="selected-candidate-notice">아직 기표하지 않았습니다. 투표용지 칸을 눌러주세요.</div>
-                <button type="button" class="submit-vote-btn" id="submit-vote-btn" disabled>🗳️ 투표함에 넣기 (투표 제출)</button>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-                  <label class="sub-check" style="gap:6px;font-size:12px;color:#64748b">
+                <button type="button" class="submit-vote-btn" id="submit-vote-btn" disabled>🗳️ 기표함에 넣기 (투표 제출)</button>
+
+                <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #cbd5e1;display:grid;gap:8px">
+                  <label class="sub-check" style="gap:6px;font-size:13px;color:#1e293b">
+                    <span>🖥️ 한 기기에서 연속 투표 (현장 키오스크 모드)</span>
                     <input type="checkbox" id="kiosk-mode-toggle">
-                    <span>한 기기에서 여러 명 연속 투표 허용 (현장 키오스크 모드)</span>
                   </label>
+                  <button type="button" class="primary" id="start-kiosk-fullscreen-btn" style="width:100%;justify-content:center;background:#0f172a;border-color:#0f172a">
+                    🖥️ 현장 키오스크 전체화면 시작 (관리메뉴 잠금)
+                  </button>
+                  <p class="note" style="margin:0;font-size:11.5px">
+                    • 화면 꺼짐 방지(Wake Lock) · 투표지 접힘 비밀보호 · 15초 입퇴장 쿨다운 · 30초 방치 시 자동 리셋이 작동합니다.
+                  </p>
                 </div>
               </div>
 
               <div class="share-box" id="share-box">
                 <h3>2. 🔗 하루(24시간) 동안 온라인 투표 공유하기</h3>
                 <p class="note" style="margin-top:2px;color:#334155">
-                  공유 링크나 QR코드를 보내면 다른 사람들도 스마트폰·PC에서 이 투표용지에 기표할 수 있고, <b>실시간 집계 페이지</b>에서 자동으로 합산됩니다. (생성 후 24시간 동안 유효)
+                  공유 링크나 QR코드를 보내면 스마트폰·PC에서 투표할 수 있고, <b>실시간 집계 페이지</b>에서 합산됩니다. (15초 중복투표 제한 적용)
                 </p>
                 <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
                   <button type="button" class="primary" id="create-share-btn" style="padding:9px 14px;font-size:13px">🚀 새 24시간 공유 링크 생성/갱신</button>
@@ -1607,6 +1896,39 @@
             <button type="button" id="reset-votes-btn" style="font-size:12px;padding:7px 12px;color:#b91c1c;border-color:#fca5a5">새 투표함으로 집계 초기화</button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 하단 플로팅 기표 확인 바 (모바일 세로모드 & 키오스크 공통) -->
+  <div class="floating-confirm-bar" id="floating-confirm-bar" role="region" aria-label="기표 확인">
+    <div class="floating-confirm-inner">
+      <div class="floating-confirm-text">
+        <small id="floating-choice-label">기호 1번 선택됨</small>
+        <b>기표함에 넣으시겠습니까?</b>
+      </div>
+      <div class="floating-confirm-actions">
+        <button type="button" class="floating-yes-btn" id="floating-yes-btn">예</button>
+        <button type="button" class="floating-reselect-btn" id="floating-reselect-btn">다시선택</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15초 물리적 중복투표 방지 쿨다운 가림막 -->
+  <div class="kiosk-cooldown-overlay" id="kiosk-cooldown-overlay" aria-live="polite">
+    <div class="cooldown-box">
+      <div class="cooldown-icon">🗳️</div>
+      <h3>기표함에 안전하게 넣었습니다!</h3>
+      <p>
+        비밀투표 보호 및 퇴장·입장 시간 확보를 위해<br>
+        <b>15초 동안 다음 투표가 물리적으로 제한</b>됩니다.
+      </p>
+      <div class="cooldown-count-circle">
+        <span id="cooldown-sec-num">15</span>
+        <small>초 후 활성화</small>
+      </div>
+      <div class="cooldown-progress-track">
+        <div class="cooldown-progress-bar" id="cooldown-progress-bar"></div>
       </div>
     </div>
   </div>
@@ -2208,8 +2530,15 @@
     let currentChoice = null;
     let voteCounts = [];
     let votedRegistry = new Set();
+    let lastDeviceVoteTimeMap = new Map();
     let sseConnection = null;
     let timerInterval = null;
+    let cooldownInterval = null;
+    let inactivityTimer = null;
+    let wakeLockSentinel = null;
+    let soundEnabled = true;
+    let audioCtx = null;
+    const COOLDOWN_SECONDS = 15;
 
     function getTopicName() {
       return `votepdf_kr_${data.pollId}`;
@@ -2219,8 +2548,85 @@
       return `voted_${data.pollId}`;
     }
 
+    function getCooldownStorageKey() {
+      return `cooldown_until_${data.pollId}`;
+    }
+
+    function getRemainingCooldownMs() {
+      const until = Number(localStorage.getItem(getCooldownStorageKey()) || 0);
+      return Math.max(0, until - Date.now());
+    }
+
     function isPollExpired() {
       return Date.now() > (Number(data.expiresAt) || 0);
+    }
+
+    // Web Audio API 합성 효과음 (별도 오디오 파일 불필요)
+    function playSound(type) {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) audioCtx = new AC();
+        }
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+
+        if (type === 'stamp') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(190, now);
+          osc.frequency.exponentialRampToValueAtTime(75, now + 0.065);
+          gain.gain.setValueAtTime(0.28, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.075);
+        } else if (type === 'submit') {
+          [523.25, 659.25, 783.99].forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.18, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.22);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.24);
+          });
+        }
+      } catch {}
+    }
+
+    // 화면 꺼짐 방지 (Screen Wake Lock API)
+    async function requestWakeLock() {
+      if ('wakeLock' in navigator) {
+        try {
+          wakeLockSentinel = await navigator.wakeLock.request('screen');
+        } catch {}
+      }
+    }
+
+    function releaseWakeLock() {
+      if (wakeLockSentinel) {
+        try { wakeLockSentinel.release(); } catch {}
+        wakeLockSentinel = null;
+      }
+    }
+
+    // 30초 방치 시 기표 자동 리셋 (비밀투표 보호)
+    function resetInactivityTimer() {
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      if (currentChoice !== null) {
+        inactivityTimer = setTimeout(() => {
+          currentChoice = null;
+          renderInteractiveBallot();
+        }, 30000);
+      }
     }
 
     function formatRemainingTime() {
@@ -2248,15 +2654,85 @@
       }
     }
 
+    function updateFloatingConfirmBar() {
+      const bar = el('floating-confirm-bar');
+      const labelEl = el('floating-choice-label');
+      const isModalOpen = el('digital-overlay').classList.contains('open');
+      const isVoteTab = el('view-vote').style.display !== 'none';
+      const inCooldown = getRemainingCooldownMs() > 0;
+
+      if (!isModalOpen || !isVoteTab || currentChoice === null || isPollExpired() || inCooldown) {
+        bar.classList.remove('visible');
+        return;
+      }
+
+      if (data.quantity === 1) {
+        labelEl.textContent = `👉 [${currentChoice === 0 ? '⭕ 찬성' : '❌ 반대'}] 기표 완료`;
+      } else {
+        const cName = data.names[currentChoice]?.trim() || `${currentChoice + 1}번 후보`;
+        const pName = data.party && data.parties[currentChoice]?.trim() ? ` (${data.parties[currentChoice].trim()})` : '';
+        labelEl.textContent = `👉 기호 ${currentChoice + 1}번 ${cName}${pName}`;
+      }
+      bar.classList.add('visible');
+    }
+
+    // 15초 물리적 중복투표 차단 쿨다운 실행
+    function startCooldown(durationSec = COOLDOWN_SECONDS) {
+      const until = Date.now() + durationSec * 1000;
+      try { localStorage.setItem(getCooldownStorageKey(), String(until)); } catch {}
+      syncCooldownOverlay();
+    }
+
+    function syncCooldownOverlay() {
+      const overlay = el('kiosk-cooldown-overlay');
+      const secEl = el('cooldown-sec-num');
+      const barEl = el('cooldown-progress-bar');
+
+      if (cooldownInterval) {
+        clearInterval(cooldownInterval);
+        cooldownInterval = null;
+      }
+
+      const tick = () => {
+        const remMs = getRemainingCooldownMs();
+        if (remMs <= 0) {
+          overlay.classList.remove('active');
+          if (cooldownInterval) {
+            clearInterval(cooldownInterval);
+            cooldownInterval = null;
+          }
+          renderInteractiveBallot();
+          return;
+        }
+        overlay.classList.add('active');
+        el('floating-confirm-bar').classList.remove('visible');
+        const sec = Math.ceil(remMs / 1000);
+        secEl.textContent = String(sec);
+        const pct = Math.max(0, Math.min(100, (remMs / (COOLDOWN_SECONDS * 1000)) * 100));
+        barEl.style.width = pct + '%';
+      };
+
+      tick();
+      if (getRemainingCooldownMs() > 0) {
+        cooldownInterval = setInterval(tick, 200);
+      }
+    }
+
     function renderInteractiveBallot() {
       const container = el('interactive-ballot-target');
       container.innerHTML = ballot(2, true, currentChoice);
 
       const notice = el('selected-candidate-notice');
       const submitBtn = el('submit-vote-btn');
-      const alreadyVoted = !el('kiosk-mode-toggle').checked && localStorage.getItem(getLocalVotedKey()) === '1';
+      const isKiosk = el('kiosk-mode-toggle').checked || document.body.classList.contains('kiosk-fullscreen-mode');
+      const alreadyVoted = !isKiosk && localStorage.getItem(getLocalVotedKey()) === '1';
+      const inCooldown = getRemainingCooldownMs() > 0;
 
-      if (alreadyVoted) {
+      if (inCooldown) {
+        notice.style.color = '#0284c7';
+        notice.textContent = '⏳ 중복투표 방지를 위해 15초 대기 중입니다...';
+        submitBtn.disabled = true;
+      } else if (alreadyVoted) {
         notice.style.color = '#15803d';
         notice.textContent = '✅ 이미 이 투표에 참여하셨습니다. (집계 페이지에서 결과를 확인하세요)';
         submitBtn.disabled = true;
@@ -2279,14 +2755,22 @@
         submitBtn.disabled = false;
       }
 
+      updateFloatingConfirmBar();
+      resetInactivityTimer();
+
       container.querySelectorAll('[data-choice]').forEach(elem => {
         elem.addEventListener('click', () => {
-          if (isPollExpired()) return;
-          if (!el('kiosk-mode-toggle').checked && localStorage.getItem(getLocalVotedKey()) === '1') {
-            alert('이미 투표에 참여하셨습니다! 한 기기에서 여러 명이 이어서 투표하려면 아래 [현장 키오스크 모드]를 켜주세요.');
+          if (isPollExpired() || getRemainingCooldownMs() > 0) return;
+          const kioskActive = el('kiosk-mode-toggle').checked || document.body.classList.contains('kiosk-fullscreen-mode');
+          if (!kioskActive && localStorage.getItem(getLocalVotedKey()) === '1') {
+            alert('이미 투표에 참여하셨습니다! 한 기기에서 여러 명이 이어서 투표하려면 [현장 키오스크 모드]를 켜주세요.');
             return;
           }
           currentChoice = Number(elem.dataset.choice);
+          playSound('stamp');
+          if (navigator.vibrate) {
+            try { navigator.vibrate(35); } catch {}
+          }
           renderInteractiveBallot();
         });
       });
@@ -2296,6 +2780,7 @@
       const slots = data.quantity === 1 ? 2 : data.quantity;
       voteCounts = Array(slots).fill(0);
       votedRegistry = new Set();
+      lastDeviceVoteTimeMap = new Map();
     }
 
     async function publishPollConfig(force = false) {
@@ -2360,10 +2845,21 @@
           const slots = data.quantity === 1 ? 2 : data.quantity;
           if (parsed.choice >= 0 && parsed.choice < slots) {
             const vKey = parsed.voterId || ('anon_' + Math.random());
-            if (!votedRegistry.has(vKey)) {
-              votedRegistry.add(vKey);
-              voteCounts[parsed.choice] = (voteCounts[parsed.choice] || 0) + 1;
+            if (votedRegistry.has(vKey)) return;
+
+            // 동일 물리 기기(deviceBaseId)에서 14초 이내 연속 투표 패킷은 물리적으로 필터링
+            const deviceBase = String(vKey).split('_kiosk_')[0];
+            const voteTs = Number(parsed.ts) || 0;
+            if (deviceBase && voteTs > 0) {
+              const prevTs = lastDeviceVoteTimeMap.get(deviceBase) || 0;
+              if (prevTs > 0 && Math.abs(voteTs - prevTs) < (COOLDOWN_SECONDS - 1) * 1000) {
+                return;
+              }
+              lastDeviceVoteTimeMap.set(deviceBase, voteTs);
             }
+
+            votedRegistry.add(vKey);
+            voteCounts[parsed.choice] = (voteCounts[parsed.choice] || 0) + 1;
           }
         }
       } catch {}
@@ -2450,31 +2946,47 @@
       }
     }
 
-    // 투표 제출하기
-    el('submit-vote-btn').addEventListener('click', async () => {
-      if (currentChoice === null || isPollExpired()) return;
-      const isKiosk = el('kiosk-mode-toggle').checked;
+    // 투표 제출 공통 함수 (하단 플로팅 [예] 버튼 & 우측 [기표함에 넣기] 버튼 공유)
+    async function executeVoteSubmit() {
+      if (currentChoice === null || isPollExpired() || getRemainingCooldownMs() > 0) return;
+      const isKiosk = el('kiosk-mode-toggle').checked || document.body.classList.contains('kiosk-fullscreen-mode');
       if (!isKiosk && localStorage.getItem(getLocalVotedKey()) === '1') {
         alert('이미 투표하셨습니다.');
         return;
       }
 
       const submitBtn = el('submit-vote-btn');
+      const floatYesBtn = el('floating-yes-btn');
       submitBtn.disabled = true;
-      submitBtn.textContent = '전송 중...';
+      floatYesBtn.disabled = true;
+      el('floating-confirm-bar').classList.remove('visible');
 
+      // 비밀투표 보호: 투표용지가 접혀서 투표함으로 들어가는 애니메이션 + 효과음
+      playSound('submit');
+      if (navigator.vibrate) {
+        try { navigator.vibrate([40, 50, 70]); } catch {}
+      }
+      const ballotArticle = el('interactive-ballot-target').querySelector('.ballot');
+      if (ballotArticle) {
+        ballotArticle.classList.add('folding');
+      }
+
+      const chosenIdx = currentChoice;
+      const nowTs = Date.now();
       const voterToken = isKiosk
-        ? `${deviceVoterId}_kiosk_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
+        ? `${deviceVoterId}_kiosk_${nowTs}_${Math.random().toString(36).slice(2, 6)}`
         : deviceVoterId;
 
       const payload = JSON.stringify({
         type: 'vote',
-        choice: currentChoice,
+        choice: chosenIdx,
         voterId: voterToken,
-        ts: Date.now()
+        ts: nowTs
       });
 
-      // 로컬 즉시 반영
+      // 15초 물리적 쿨다운 즉시 가동 (입퇴장 시간 동안 중복투표 원천 차단)
+      startCooldown(COOLDOWN_SECONDS);
+
       processVoteMessage(payload);
       if (!isKiosk) {
         try { localStorage.setItem(getLocalVotedKey(), '1'); } catch {}
@@ -2488,20 +3000,87 @@
       } catch {}
 
       currentChoice = null;
-      submitBtn.textContent = '🗳️ 투표함에 넣기 (투표 제출)';
+      floatYesBtn.disabled = false;
       renderInteractiveBallot();
       renderResultsUI();
+    }
 
-      if (isKiosk) {
-        alert('투표가 접수되었습니다! 다음 투표자가 이어서 기표할 수 있습니다.');
-      } else {
-        switchDigitalTab('results');
-      }
+    el('submit-vote-btn').addEventListener('click', executeVoteSubmit);
+    el('floating-yes-btn').addEventListener('click', executeVoteSubmit);
+
+    el('floating-reselect-btn').addEventListener('click', () => {
+      currentChoice = null;
+      renderInteractiveBallot();
     });
 
     el('kiosk-mode-toggle').addEventListener('change', () => {
       renderInteractiveBallot();
     });
+
+    // 현장 키오스크 전체화면 진입 및 2초 홀드 관리자 잠금 해제
+    async function enterKioskFullscreen() {
+      el('kiosk-mode-toggle').checked = true;
+      document.body.classList.add('kiosk-fullscreen-mode');
+      switchDigitalTab('vote');
+      renderInteractiveBallot();
+      await requestWakeLock();
+      if (document.documentElement.requestFullscreen) {
+        try { await document.documentElement.requestFullscreen(); } catch {}
+      }
+    }
+
+    async function exitKioskFullscreen() {
+      document.body.classList.remove('kiosk-fullscreen-mode');
+      releaseWakeLock();
+      if (document.fullscreenElement && document.exitFullscreen) {
+        try { await document.exitFullscreen(); } catch {}
+      }
+      renderInteractiveBallot();
+    }
+
+    el('start-kiosk-fullscreen-btn').addEventListener('click', enterKioskFullscreen);
+
+    el('sound-toggle-btn').addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      el('sound-toggle-btn').textContent = soundEnabled ? '🔊 효과음 켜짐' : '🔇 효과음 꺼짐';
+    });
+
+    // 관리자 종료 버튼: 2초간 길게 누르기(Hold)로 투표자 임의 조작 방지
+    let holdTimer = null;
+    let holdStart = 0;
+    const unlockBtn = el('kiosk-unlock-btn');
+    const holdBar = el('kiosk-hold-bar');
+
+    function startUnlockHold(e) {
+      e.preventDefault();
+      holdStart = Date.now();
+      if (holdTimer) clearInterval(holdTimer);
+      holdTimer = setInterval(() => {
+        const elapsed = Date.now() - holdStart;
+        const pct = Math.min(100, (elapsed / 1800) * 100);
+        holdBar.style.width = pct + '%';
+        if (elapsed >= 1800) {
+          clearInterval(holdTimer);
+          holdTimer = null;
+          holdBar.style.width = '0%';
+          exitKioskFullscreen();
+          switchDigitalTab('results');
+        }
+      }, 40);
+    }
+
+    function cancelUnlockHold() {
+      if (holdTimer) {
+        clearInterval(holdTimer);
+        holdTimer = null;
+      }
+      holdBar.style.width = '0%';
+    }
+
+    unlockBtn.addEventListener('mousedown', startUnlockHold);
+    unlockBtn.addEventListener('touchstart', startUnlockHold, { passive: false });
+    addEventListener('mouseup', cancelUnlockHold);
+    addEventListener('touchend', cancelUnlockHold);
 
     // 공유 링크 및 QR코드 표시 (단축 ID ?p=pollId 사용으로 초간편 QR코드 생성)
     function updateShareLinkBox() {
@@ -2542,6 +3121,7 @@
       el('tab-result-btn').classList.toggle('active', !isVote);
       el('view-vote').style.display = isVote ? 'block' : 'none';
       el('view-results').style.display = isVote ? 'none' : 'block';
+      updateFloatingConfirmBar();
       if (!isVote) {
         renderResultsUI();
       }
@@ -2571,6 +3151,7 @@
       el('digital-overlay').classList.add('open');
       currentChoice = null;
       updateTimerUI();
+      syncCooldownOverlay();
       renderInteractiveBallot();
       updateShareLinkBox();
       await publishPollConfig(false);
@@ -2583,7 +3164,9 @@
 
     el('open-digital-btn').addEventListener('click', openDigitalModal);
     el('close-digital-btn').addEventListener('click', () => {
+      exitKioskFullscreen();
       el('digital-overlay').classList.remove('open');
+      el('floating-confirm-bar').classList.remove('visible');
       if (sseConnection) {
         try { sseConnection.close(); } catch {}
         sseConnection = null;
@@ -2593,7 +3176,7 @@
     addEventListener('resize', fit);
     render();
 
-    // 공유 링크(?v=...)로 접속한 경우 즉시 디지털 투표소 화면 오픈
+    // 공유 링크(?p=... 또는 ?v=...)로 접속한 경우 즉시 디지털 투표소 화면 오픈
     if (isSharedVoterMode) {
       el('digital-modal-title').textContent = `🗳️ ${data.title.trim() || '디지털 투표소'}`;
       openDigitalModal();
