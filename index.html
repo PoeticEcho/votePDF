@@ -1,0 +1,1359 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>투표용지 만들기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;600;700&family=Jua&family=Nanum+Gothic:wght@400;700;800&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@400;600;700;800&family=Noto+Serif+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      color: #182432;
+      background: #f3f5f7;
+      --ballot-title-font: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+      --ballot-body-font: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+      --title-scale: 1;
+      --name-scale: 1;
+      --sub-scale: 1;
+      --title-weight: 800;
+      --name-weight: 700;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    .app {
+      max-width: 1440px;
+      margin: auto;
+      padding: 28px 20px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .top h1 {
+      font-size: 26px;
+      margin: 0;
+    }
+
+    .top p {
+      color: #64748b;
+      margin: 5px 0 0;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid #cbd5e1;
+      background: white;
+      border-radius: 9px;
+      padding: 11px 16px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #182432;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    button.style-btn {
+      border-color: #93c5fd;
+      background: #eff6ff;
+      color: #1e40af;
+    }
+
+    button.style-btn:hover,
+    button.style-btn.active {
+      background: #dbeafe;
+      border-color: #3b82f6;
+    }
+
+    button.primary {
+      background: #174a74;
+      border-color: #174a74;
+      color: white;
+    }
+
+    button.primary:hover {
+      background: #123a5c;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 390px minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .panel,
+    .preview-panel {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 15px;
+      padding: 22px;
+      box-shadow: 0 4px 15px #26364a0d;
+    }
+
+    .panel {
+      align-self: start;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    .field > label:not(.toggle-row),
+    .field-legend {
+      display: block;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .field input[type="text"],
+    .field select,
+    .candidate input {
+      width: 100%;
+      border: 1px solid #c9d3df;
+      border-radius: 8px;
+      padding: 11px 12px;
+      font-size: 15px;
+      font-family: inherit;
+      background: #fff;
+      color: #182432;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .candidate input:focus {
+      outline: 2px solid #4285b6;
+      border-color: transparent;
+    }
+
+    .layout-chips {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .chip-btn {
+      padding: 9px 10px;
+      font-size: 12.5px;
+      border-radius: 8px;
+      justify-content: center;
+      text-align: center;
+      font-weight: 700;
+      background: #f8fafc;
+      border: 1px solid #dbe3ec;
+      color: #334155;
+      line-height: 1.35;
+    }
+
+    .chip-btn[data-layout="auto"] {
+      grid-column: span 2;
+    }
+
+    .chip-btn.active {
+      background: #174a74;
+      border-color: #174a74;
+      color: #fff;
+    }
+
+    .chip-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 0;
+      user-select: none;
+    }
+
+    .toggle-row:hover {
+      background: #f8fafc;
+    }
+
+    .toggle-row input {
+      width: 20px;
+      height: 20px;
+      accent-color: #174a74;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    /* 글자 꾸미기 패널 */
+    .style-drawer {
+      display: none;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+    }
+
+    .style-drawer.open {
+      display: block;
+    }
+
+    .style-drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .style-drawer-header b {
+      font-size: 15px;
+      color: #0f172a;
+    }
+
+    .style-reset-btn {
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .preset-btn {
+      padding: 8px 10px;
+      font-size: 12px;
+      border-radius: 7px;
+      justify-content: center;
+      background: #fff;
+    }
+
+    .preset-btn.active {
+      border-color: #174a74;
+      background: #eef4f9;
+      color: #174a74;
+    }
+
+    .style-group {
+      margin-bottom: 12px;
+    }
+
+    .style-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .style-group label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 5px;
+    }
+
+    .style-group select {
+      padding: 8px 10px;
+      font-size: 13.5px;
+    }
+
+    .style-group input[type="range"] {
+      width: 100%;
+      accent-color: #174a74;
+      cursor: pointer;
+    }
+
+    .style-row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .note {
+      font-size: 12px;
+      color: #64748b;
+      margin: 7px 0 0;
+      line-height: 1.55;
+    }
+
+    .candidate {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      margin: 10px 0;
+    }
+
+    .candidate .number {
+      padding-top: 11px;
+      font-weight: 800;
+      text-align: center;
+      color: #174a74;
+    }
+
+    .candidate .fields {
+      display: grid;
+      gap: 6px;
+    }
+
+    .input-with-count {
+      position: relative;
+    }
+
+    .input-with-count input {
+      padding-right: 46px;
+    }
+
+    .count {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: #64748b;
+      pointer-events: none;
+    }
+
+    .candidate .party-wrap {
+      display: none;
+    }
+
+    .party-on .candidate .party-wrap {
+      display: block;
+    }
+
+    .caption {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .caption b {
+      font-size: 18px;
+    }
+
+    .caption span {
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .preview-scroll {
+      overflow: auto;
+      background: #dbe1e8;
+      padding: 20px;
+      border-radius: 10px;
+      min-height: 550px;
+    }
+
+    .sheet-wrapper {
+      position: relative;
+      margin: 0 auto;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12);
+    }
+
+    /* A4 Sheet & Grid Variants */
+    .sheet {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform-origin: top left;
+      width: 210mm;
+      height: 297mm;
+      background: #fff;
+      color: #000;
+      display: grid;
+      grid-template-columns: repeat(3, 70mm);
+      grid-template-rows: 297mm;
+      font-family: var(--ballot-body-font);
+    }
+
+    .sheet.grid-3x2 {
+      grid-template-columns: repeat(3, 70mm);
+      grid-template-rows: repeat(2, 148.5mm);
+    }
+
+    .sheet.grid-3x1 {
+      grid-template-columns: repeat(3, 70mm);
+      grid-template-rows: 297mm;
+    }
+
+    .sheet.grid-2x2 {
+      grid-template-columns: repeat(2, 105mm);
+      grid-template-rows: repeat(2, 148.5mm);
+    }
+
+    .sheet.grid-2x1 {
+      grid-template-columns: repeat(2, 105mm);
+      grid-template-rows: 297mm;
+    }
+
+    .ballot {
+      height: 100%;
+      min-width: 0;
+      padding: 11mm 4.8mm 7mm;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 절취선 (열/행 수에 따라 적용) */
+    .sheet.cols-3 .ballot:not(:nth-child(3n+1)) {
+      border-left: 0.23mm dashed #999;
+    }
+
+    .sheet.cols-2 .ballot:not(:nth-child(2n+1)) {
+      border-left: 0.23mm dashed #999;
+    }
+
+    .sheet.rows-2.cols-3 .ballot:nth-child(n+4) {
+      border-top: 0.23mm dashed #999;
+    }
+
+    .sheet.rows-2.cols-2 .ballot:nth-child(n+3) {
+      border-top: 0.23mm dashed #999;
+    }
+
+    /* 2행(컴팩트 높이 148.5mm) 스타일 */
+    .rows-2 .ballot {
+      padding: 6mm 4mm 4mm;
+    }
+
+    /* 2열(넓은 폭 105mm) 여백 보정 */
+    .cols-2 .ballot {
+      padding-left: 8mm;
+      padding-right: 8mm;
+    }
+
+    /* 2행 + 4명일 때 세로 공간 최적화 */
+    .rows-2.q-4 .ballot {
+      padding: 4.5mm 4mm 3.5mm;
+    }
+
+    .cols-2.rows-2.q-4 .ballot {
+      padding: 4.5mm 8mm 3.5mm;
+    }
+
+    .ballot-title {
+      font-family: var(--ballot-title-font);
+      font-weight: var(--title-weight);
+      text-align: center;
+      line-height: 1.35;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+      font-size: calc(13pt * var(--title-scale));
+      min-height: 24mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rows-2 .ballot-title {
+      font-size: calc(11pt * var(--title-scale));
+      min-height: 16mm;
+    }
+
+    .rows-2.q-4 .ballot-title {
+      font-size: calc(10.5pt * var(--title-scale));
+      min-height: 12.5mm;
+    }
+
+    .ballot-sub {
+      font-family: var(--ballot-title-font);
+      font-weight: var(--title-weight);
+      font-size: calc(10pt * var(--sub-scale));
+      text-align: center;
+      margin: 0 0 8mm;
+    }
+
+    .rows-2 .ballot-sub {
+      font-size: calc(9pt * var(--sub-scale));
+      margin-bottom: 4.5mm;
+    }
+
+    .rows-2.q-4 .ballot-sub {
+      font-size: calc(8.5pt * var(--sub-scale));
+      margin-bottom: 3mm;
+    }
+
+    .ballot table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 9pt;
+    }
+
+    .ballot th,
+    .ballot td {
+      border: 0.3mm solid #222;
+      text-align: center;
+      vertical-align: middle;
+      padding: 1.2mm 0.5mm;
+      overflow-wrap: anywhere;
+    }
+
+    .ballot th {
+      background: #f8f8f8;
+      font-size: calc(7.6pt * var(--sub-scale));
+      font-weight: 800;
+    }
+
+    .ballot td {
+      height: 21mm;
+    }
+
+    .ballot .name,
+    .ballot .party-name {
+      font-weight: var(--name-weight);
+      white-space: pre-line;
+      line-height: 1.45;
+      word-break: keep-all;
+    }
+
+    .ballot .name {
+      font-size: calc(9pt * var(--name-scale));
+    }
+
+    .ballot .party-name {
+      font-size: calc(7.6pt * var(--sub-scale));
+    }
+
+    .ballot .number-cell {
+      font-weight: 800;
+      font-size: calc(9pt * var(--sub-scale));
+    }
+
+    .cols-3 .ballot.party-enabled .name {
+      font-size: calc(8.2pt * var(--name-scale));
+    }
+
+    .cols-3 .ballot.party-enabled .party-name {
+      font-size: calc(7.2pt * var(--sub-scale));
+    }
+
+    /* 2행(컴팩트) 셀 높이 및 글자 크기 */
+    .rows-2 .ballot td {
+      height: 19mm;
+    }
+
+    .rows-2.q-4 .ballot td {
+      height: 16.8mm;
+    }
+
+    .rows-2 .ballot th,
+    .rows-2 .ballot td {
+      padding: 0.5mm 0.25mm;
+    }
+
+    .rows-2.cols-3 .ballot .name {
+      font-size: calc(8.2pt * var(--name-scale));
+    }
+
+    .rows-2.cols-3 .ballot.party-enabled .name {
+      font-size: calc(7.2pt * var(--name-scale));
+    }
+
+    .rows-2.cols-3 .ballot.party-enabled .party-name {
+      font-size: calc(6.9pt * var(--sub-scale));
+    }
+
+    /* 2열(넓은 폭 105mm)일 때 여유 있는 글자 크기 */
+    .cols-2 .ballot .name {
+      font-size: calc(10pt * var(--name-scale));
+    }
+
+    .cols-2 .ballot .party-name {
+      font-size: calc(8.5pt * var(--sub-scale));
+    }
+
+    .mark {
+      display: block;
+      min-width: 7mm;
+      min-height: 10mm;
+      width: 75%;
+      height: 12mm;
+      margin: auto;
+    }
+
+    .rows-2 .mark {
+      min-height: 9mm;
+      height: 10.5mm;
+    }
+
+    .rows-2.q-4 .mark {
+      min-height: 8mm;
+      height: 9.5mm;
+    }
+
+    .ballot-footer {
+      margin-top: auto;
+      font-size: calc(8pt * var(--sub-scale));
+      text-align: center;
+      color: #555;
+      padding-top: 4mm;
+    }
+
+    .rows-2 .ballot-footer {
+      font-size: calc(7pt * var(--sub-scale));
+      padding-top: 2mm;
+    }
+
+    .rows-2.q-4 .ballot-footer {
+      font-size: calc(6.8pt * var(--sub-scale));
+      padding-top: 1.5mm;
+    }
+
+    /* 1명 찬반 투표 스타일 (이중 테두리 수정 포함) */
+    .approval-title {
+      border: 0.3mm solid #222;
+      border-bottom: 0;
+      padding: 6mm 2mm;
+      white-space: pre-line;
+      text-align: center;
+      font-size: calc(10pt * var(--name-scale));
+      font-weight: var(--name-weight);
+      line-height: 1.6;
+    }
+
+    .approval-party {
+      font-size: calc(8pt * var(--sub-scale));
+      color: #222;
+      margin-bottom: 2.5mm;
+    }
+
+    .rows-2 .approval-title {
+      padding: 3mm 2mm;
+    }
+
+    .approval-table td {
+      height: 30mm !important;
+    }
+
+    .rows-2 .approval-table td {
+      height: 19mm !important;
+    }
+
+    .approval-table th {
+      font-size: calc(10pt * var(--sub-scale));
+    }
+
+    .approval-table .mark {
+      height: 23mm;
+    }
+
+    .rows-2 .approval-table .mark {
+      height: 15mm;
+    }
+
+    .support {
+      margin-top: 15px;
+      font-size: 12px;
+      line-height: 1.8;
+      color: #637488;
+    }
+
+    @media (max-width: 900px) {
+      .top {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .app {
+        padding: 14px;
+      }
+      .panel,
+      .preview-panel {
+        padding: 16px;
+      }
+      .preview-scroll {
+        padding: 10px;
+        min-height: 350px;
+      }
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    @media print {
+      html,
+      body {
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        overflow: hidden !important;
+      }
+      .app,
+      .layout,
+      .preview-panel,
+      .preview-scroll,
+      .sheet-wrapper {
+        display: contents !important;
+      }
+      .top,
+      .panel,
+      .caption,
+      .support {
+        display: none !important;
+      }
+      .sheet {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        transform: none !important;
+        box-shadow: none !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <header class="top">
+      <div>
+        <h1>투표용지 만들기</h1>
+        <p>입력하면 A4 인쇄용 투표용지가 바로 완성됩니다.</p>
+      </div>
+      <div class="buttons">
+        <button type="button" class="style-btn" id="toggle-style-btn">✨ 글자 꾸미기</button>
+        <button type="button" id="reset">초기화</button>
+        <button type="button" class="primary" id="print">인쇄 / PDF 저장</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <section class="panel">
+        <!-- 글자 꾸미기 드로어 패널 -->
+        <div class="style-drawer" id="style-drawer">
+          <div class="style-drawer-header">
+            <b>✨ 글자 꾸미기 (폰트 · 크기 · 굵기)</b>
+            <button type="button" class="style-reset-btn" id="reset-style">스타일 기본값</button>
+          </div>
+
+          <div class="style-group">
+            <label>빠른 테마 프리셋</label>
+            <div class="preset-grid" id="preset-grid">
+              <button type="button" class="preset-btn" data-preset="default">기본 고딕</button>
+              <button type="button" class="preset-btn" data-preset="official">공식 선거 명조</button>
+              <button type="button" class="preset-btn" data-preset="friendly">학교·인기투표</button>
+              <button type="button" class="preset-btn" data-preset="large">큰 글씨 배려</button>
+            </div>
+          </div>
+
+          <div class="style-group">
+            <label for="title-font">투표 제목 폰트</label>
+            <select id="title-font"></select>
+          </div>
+
+          <div class="style-group">
+            <label for="body-font">본문(후보·정당) 폰트</label>
+            <select id="body-font"></select>
+          </div>
+
+          <div class="style-group">
+            <label for="title-scale">
+              <span>투표 제목 크기</span>
+              <span id="title-scale-val">100%</span>
+            </label>
+            <input type="range" id="title-scale" min="75" max="145" step="5" value="100">
+          </div>
+
+          <div class="style-group">
+            <label for="name-scale">
+              <span>후보 이름 크기</span>
+              <span id="name-scale-val">100%</span>
+            </label>
+            <input type="range" id="name-scale" min="75" max="145" step="5" value="100">
+          </div>
+
+          <div class="style-group">
+            <label for="sub-scale">
+              <span>정당·기호·안내문 크기</span>
+              <span id="sub-scale-val">100%</span>
+            </label>
+            <input type="range" id="sub-scale" min="75" max="135" step="5" value="100">
+          </div>
+
+          <div class="style-row-2col">
+            <div class="style-group">
+              <label for="title-weight">제목 굵기</label>
+              <select id="title-weight">
+                <option value="400">보통 (400)</option>
+                <option value="700">굵게 (700)</option>
+                <option value="800" selected>아주 굵게 (800)</option>
+              </select>
+            </div>
+            <div class="style-group">
+              <label for="name-weight">후보 이름 굵기</label>
+              <select id="name-weight">
+                <option value="400">보통 (400)</option>
+                <option value="600">중간 (600)</option>
+                <option value="700" selected>굵게 (700)</option>
+                <option value="800">아주 굵게 (800)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="style-group" style="margin-top:8px">
+            <label for="wrap-mode">이름 줄바꿈 방식</label>
+            <select id="wrap-mode">
+              <option value="auto">자동 (3열은 5자 줄바꿈 · 2열은 넓게 표시)</option>
+              <option value="5">항상 5자마다 줄바꿈</option>
+              <option value="none">고정 줄바꿈 안 함 (칸 너비에 맞춤)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="title">투표 제목</label>
+          <input id="title" type="text" maxlength="100" placeholder="투표 제목을 입력해 주세요">
+        </div>
+
+        <div class="field">
+          <label for="quantity">후보 수</label>
+          <select id="quantity"></select>
+          <p class="note" id="quantity-help"></p>
+        </div>
+
+        <div class="field">
+          <div class="field-legend">용지 배치 (카드 수 · 너비 선택)</div>
+          <div class="layout-chips" id="layout-chips">
+            <button type="button" class="chip-btn" data-layout="auto">자동 추천<br><small>1~4명 6장 / 5~8명 3장</small></button>
+            <button type="button" class="chip-btn" data-layout="3x2">3×2 배열 (6장)<br><small>표준 폭 70mm</small></button>
+            <button type="button" class="chip-btn" data-layout="2x2">2×2 배열 (4장)<br><small>넓은 폭 105mm</small></button>
+            <button type="button" class="chip-btn" data-layout="3x1">3×1 배열 (3장)<br><small>표준 폭 70mm · 긴 세로</small></button>
+            <button type="button" class="chip-btn" data-layout="2x1">2×1 배열 (2장)<br><small>넓은 폭 105mm · 긴 세로</small></button>
+          </div>
+          <p class="note">4명 후보도 3×2(6장) 배열을 지원하며, 글자가 길거나 크게 뽑고 싶을 때는 넓은 폭(2열, 105mm)으로 바꿀 수 있습니다.</p>
+        </div>
+
+        <div class="field">
+          <label class="toggle-row" for="party-toggle">
+            <span>정당 표시 <small style="color:#64748b;font-weight:500">(선택)</small></span>
+            <input type="checkbox" id="party-toggle">
+          </label>
+          <p class="note">기본은 후보 이름만 표시합니다. 켜면 정당명을 추가할 수 있습니다.</p>
+        </div>
+
+        <div class="field">
+          <div class="field-legend">
+            후보 이름 <span style="font-weight:400;color:#64748b" id="wrap-hint">· 최대 10자, 5자씩 줄바꿈</span>
+          </div>
+          <div id="candidates"></div>
+        </div>
+
+        <p class="note">입력 내용은 현재 기기의 브라우저에만 자동 저장됩니다.</p>
+      </section>
+
+      <section class="preview-panel">
+        <div class="caption">
+          <b>인쇄 미리보기</b>
+          <span id="layout-label"></span>
+        </div>
+        <div class="preview-scroll" id="preview-scroll">
+          <div class="sheet-wrapper" id="sheet-wrapper">
+            <div class="sheet" id="sheet"></div>
+          </div>
+        </div>
+        <p class="support">
+          A4 · 세로 · 배율 100% · 여백 없음으로 인쇄하세요. PDF 저장은 인쇄 화면에서 ‘PDF로 저장’을 선택하면 됩니다. 점선을 따라 재단하세요.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const key = 'ballot-editor-party-v1';
+    const defaults = ['첫번째곰돌이', '양양이', '불리', '브릭타', '하식이', '짜구짜꾸', '엄마토끼', '해오름토끼'];
+
+    const FONTS = [
+      { id: 'malgun', label: '맑은 고딕 (시스템 기본)', css: "'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif" },
+      { id: 'noto-sans', label: '본고딕 (Noto Sans KR)', css: "'Noto Sans KR', sans-serif" },
+      { id: 'noto-serif', label: '본명조 (Noto Serif KR · 선거용지 느낌)', css: "'Noto Serif KR', serif" },
+      { id: 'nanum-gothic', label: '나눔고딕 (Nanum Gothic)', css: "'Nanum Gothic', sans-serif" },
+      { id: 'nanum-myeongjo', label: '나눔명조 (Nanum Myeongjo)', css: "'Nanum Myeongjo', serif" },
+      { id: 'ibm-plex', label: 'IBM Plex Sans KR (현대적 고딕)', css: "'IBM Plex Sans KR', sans-serif" },
+      { id: 'gowun-dodum', label: '고운돋움 (Gowun Dodum · 깔끔한 돋움)', css: "'Gowun Dodum', sans-serif" },
+      { id: 'gowun-batang', label: '고운바탕 (Gowun Batang · 부드러운 바탕)', css: "'Gowun Batang', serif" },
+      { id: 'jua', label: '배달의민족 주아체 (Jua · 둥근 인기투표용)', css: "'Jua', sans-serif" },
+      { id: 'do-hyeon', label: '배달의민족 도현체 (Do Hyeon · 강렬한 제목용)', css: "'Do Hyeon', sans-serif" }
+    ];
+
+    const DEFAULT_STYLE = {
+      titleFont: 'malgun',
+      bodyFont: 'malgun',
+      titleScale: 100,
+      nameScale: 100,
+      subScale: 100,
+      titleWeight: '800',
+      nameWeight: '700',
+      wrapMode: 'auto'
+    };
+
+    const segmenter = typeof Intl !== 'undefined' && Intl.Segmenter
+      ? new Intl.Segmenter('ko', { granularity: 'grapheme' })
+      : null;
+
+    const chars = s => segmenter
+      ? Array.from(segmenter.segment(String(s || '')), v => v.segment)
+      : Array.from(String(s || ''));
+
+    const clean = s => chars(String(s || '').replace(/[\r\n\t]/g, '')).slice(0, 10).join('');
+
+    const defaultState = () => ({
+      title: '인형 인기투표',
+      quantity: 8,
+      party: false,
+      layoutMode: 'auto',
+      names: [...defaults],
+      parties: Array(8).fill(''),
+      style: { ...DEFAULT_STYLE }
+    });
+
+    let data = defaultState();
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(key) || 'null');
+      if (saved && typeof saved === 'object') {
+        const base = defaultState();
+        data = {
+          ...base,
+          title: typeof saved.title === 'string' ? saved.title.slice(0, 100) : base.title,
+          quantity: Math.min(8, Math.max(1, Number(saved.quantity) || 8)),
+          party: !!saved.party,
+          layoutMode: ['auto', '3x2', '2x2', '3x1', '2x1'].includes(saved.layoutMode) ? saved.layoutMode : 'auto',
+          names: [...defaults].map((v, i) => clean(saved.names?.[i] ?? v)),
+          parties: Array.from({ length: 8 }, (_, i) => clean(saved.parties?.[i] ?? '')),
+          style: {
+            ...DEFAULT_STYLE,
+            ...(saved.style && typeof saved.style === 'object' ? saved.style : {})
+          }
+        };
+      }
+    } catch {}
+
+    const el = id => document.getElementById(id);
+
+    // 후보 수 옵션 생성
+    for (let n = 1; n <= 8; n++) {
+      const o = document.createElement('option');
+      o.value = n;
+      o.textContent = n + '명';
+      el('quantity').appendChild(o);
+    }
+
+    // 폰트 선택 옵션 생성
+    for (const selectId of ['title-font', 'body-font']) {
+      const sel = el(selectId);
+      for (const f of FONTS) {
+        const o = document.createElement('option');
+        o.value = f.id;
+        o.textContent = f.label;
+        sel.appendChild(o);
+      }
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(key, JSON.stringify(data));
+      } catch {}
+    }
+
+    function escapeHTML(v) {
+      return String(v).replace(/[&<>"']/g, ch => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[ch]));
+    }
+
+    function td(t, cls) {
+      return `<td${cls ? ` class="${cls}"` : ''}>${escapeHTML(t)}</td>`;
+    }
+
+    // 현재 후보 수와 선택된 모드에 따른 실제 그리드 계산 (4명까지 기본 3x2 6장 지원)
+    function resolveGrid() {
+      const q = data.quantity;
+      let mode = data.layoutMode || 'auto';
+      // 5명 이상일 때는 2행(148.5mm)에 들어가기엔 칸이 좁으므로 1행(3x1 또는 2x1)으로 자동 전환
+      if (q > 4 && (mode === '3x2' || mode === '2x2')) {
+        mode = mode === '2x2' ? '2x1' : '3x1';
+      }
+      if (mode === 'auto') {
+        mode = q <= 4 ? '3x2' : '3x1';
+      }
+      const [cols, rows] = mode.split('x').map(Number);
+      return { mode, cols, rows, copies: cols * rows };
+    }
+
+    // 줄바꿈 처리 (3열은 기본 5자 줄바꿈, 2열 넓은 폭은 기본 줄바꿈 없음 또는 설정에 따름)
+    function formatText(s, cols) {
+      const cleaned = clean(s);
+      const wrapMode = data.style?.wrapMode || 'auto';
+      const shouldWrap5 = wrapMode === '5' || (wrapMode === 'auto' && cols === 3);
+      if (!shouldWrap5) return cleaned;
+      const c = chars(cleaned);
+      return c.slice(0, 5).join('') + (c.length > 5 ? '\n' + c.slice(5).join('') : '');
+    }
+
+    function applyTypographyVariables() {
+      const s = data.style || DEFAULT_STYLE;
+      const titleFontObj = FONTS.find(f => f.id === s.titleFont) || FONTS[0];
+      const bodyFontObj = FONTS.find(f => f.id === s.bodyFont) || FONTS[0];
+      const root = document.documentElement.style;
+      root.setProperty('--ballot-title-font', titleFontObj.css);
+      root.setProperty('--ballot-body-font', bodyFontObj.css);
+      root.setProperty('--title-scale', (Number(s.titleScale) || 100) / 100);
+      root.setProperty('--name-scale', (Number(s.nameScale) || 100) / 100);
+      root.setProperty('--sub-scale', (Number(s.subScale) || 100) / 100);
+      root.setProperty('--title-weight', s.titleWeight || '800');
+      root.setProperty('--name-weight', s.nameWeight || '700');
+    }
+
+    function ballot(cols) {
+      const q = data.quantity;
+      const isParty = data.party;
+      const titleText = data.title.trim() || '투표 제목';
+      const titles = `<div class="ballot-title">${escapeHTML(titleText)}</div><p class="ballot-sub">투 표 용 지</p>`;
+      let body = '';
+
+      if (q === 1) {
+        const partyText = isParty && data.parties[0]?.trim()
+          ? `<div class="approval-party">${escapeHTML(formatText(data.parties[0].trim(), cols))}</div>`
+          : '';
+        const candName = data.names[0]?.trim() || '후보 이름';
+        body = `<div class="approval-title">${partyText}${escapeHTML(formatText(candName, cols))}</div>` +
+          `<table class="approval-table"><thead><tr><th>찬성</th><th>반대</th></tr></thead>` +
+          `<tbody><tr><td><span class="mark"></span></td><td><span class="mark"></span></td></tr></tbody></table>`;
+      } else {
+        const w = isParty ? ['10%', '29%', '43%', '18%'] : ['13%', '65%', '22%'];
+        body = `<table><colgroup>${w.map(v => `<col style="width:${v}">`).join('')}</colgroup>` +
+          `<thead><tr><th>기호</th>${isParty ? '<th>정당명</th>' : ''}<th>후보 이름</th><th>기표</th></tr></thead>` +
+          `<tbody>${Array.from({ length: q }, (_, i) => {
+            const pName = data.parties[i]?.trim() ? formatText(data.parties[i].trim(), cols) : '';
+            const cName = formatText(data.names[i]?.trim() || '후보 이름', cols);
+            return `<tr>${td(i + 1, 'number-cell')}${isParty ? td(pName, 'party-name') : ''}${td(cName, 'name')}<td><span class="mark"></span></td></tr>`;
+          }).join('')}</tbody></table>`;
+      }
+
+      return `<article class="ballot ${isParty ? 'party-enabled' : ''}">${titles}${body}<div class="ballot-footer">${q === 1 ? '찬성 또는 반대에 기표해 주세요.' : '한 명의 후보에게 기표해 주세요.'}</div></article>`;
+    }
+
+    function fit() {
+      const preview = el('preview-scroll');
+      const wrapEl = el('sheet-wrapper');
+      const sheet = el('sheet');
+      const sheetW = 210 * 96 / 25.4;
+      const sheetH = 297 * 96 / 25.4;
+      const availableW = Math.max(200, preview.clientWidth - 40);
+      const scale = Math.min(1, availableW / sheetW);
+      wrapEl.style.width = (sheetW * scale) + 'px';
+      wrapEl.style.height = (sheetH * scale) + 'px';
+      sheet.style.transform = `scale(${scale})`;
+    }
+
+    function syncStyleUI() {
+      const s = data.style || DEFAULT_STYLE;
+      el('title-font').value = s.titleFont;
+      el('body-font').value = s.bodyFont;
+      el('title-scale').value = s.titleScale;
+      el('name-scale').value = s.nameScale;
+      el('sub-scale').value = s.subScale;
+      el('title-scale-val').textContent = s.titleScale + '%';
+      el('name-scale-val').textContent = s.nameScale + '%';
+      el('sub-scale-val').textContent = s.subScale + '%';
+      el('title-weight').value = s.titleWeight;
+      el('name-weight').value = s.nameWeight;
+      el('wrap-mode').value = s.wrapMode;
+    }
+
+    function updateLayoutChipsUI() {
+      const q = data.quantity;
+      const { mode, cols, rows, copies } = resolveGrid();
+      const widthMm = cols === 3 ? 70 : 105;
+
+      el('quantity-help').textContent = q <= 4
+        ? '1~4명: 기본 3×2 배열(A4 한 장에 6개) · 필요시 2×2(넓은 폭 4개)나 3×1(3개) 선택 가능'
+        : '5~8명: 세로 길이에 맞춰 3×1 배열(3개, 폭 70mm) 또는 2×1 배열(2개, 넓은 폭 105mm)로 배치됩니다.';
+
+      el('layout-label').textContent = `A4 한 장 · ${copies}장 (${cols}열 × ${rows}행 · 카드 폭 ${widthMm}mm)`;
+
+      const wrapMode = data.style?.wrapMode || 'auto';
+      const shouldWrap5 = wrapMode === '5' || (wrapMode === 'auto' && cols === 3);
+      el('wrap-hint').textContent = shouldWrap5
+        ? '· 최대 10자, 5자씩 줄바꿈'
+        : '· 최대 10자, 칸 너비에 맞춰 표시';
+
+      const effectiveSelection = (q > 4 && (data.layoutMode === '3x2' || data.layoutMode === '2x2'))
+        ? mode
+        : (data.layoutMode || 'auto');
+
+      document.querySelectorAll('#layout-chips .chip-btn').forEach(btn => {
+        const bLayout = btn.dataset.layout;
+        const disabled = q > 4 && (bLayout === '3x2' || bLayout === '2x2');
+        btn.disabled = disabled;
+        btn.classList.toggle('active', bLayout === effectiveSelection);
+      });
+    }
+
+    function render() {
+      el('title').value = data.title;
+      el('quantity').value = data.quantity;
+      el('party-toggle').checked = data.party;
+      el('app').classList.toggle('party-on', data.party);
+      syncStyleUI();
+
+      const target = el('candidates');
+      target.innerHTML = '';
+
+      for (let i = 0; i < data.quantity; i++) {
+        const node = document.createElement('div');
+        node.className = 'candidate';
+        node.innerHTML = `
+          <span class="number">${i + 1}</span>
+          <div class="fields">
+            <div class="input-with-count">
+              <input aria-label="${i + 1}번 후보 이름" maxlength="22" placeholder="후보 이름" class="nm">
+              <div class="count nm-count" aria-label="후보 이름 글자 수"></div>
+            </div>
+            <div class="input-with-count party-wrap">
+              <input class="party" aria-label="${i + 1}번 정당 이름" maxlength="22" placeholder="정당 이름 (선택)">
+              <div class="count party-count" aria-label="정당 이름 글자 수"></div>
+            </div>
+          </div>
+        `;
+
+        const n = node.querySelector('.nm');
+        const p = node.querySelector('.party');
+        const nmCnt = node.querySelector('.nm-count');
+        const pCnt = node.querySelector('.party-count');
+
+        n.value = data.names[i];
+        p.value = data.parties[i];
+        nmCnt.textContent = `${chars(data.names[i]).length}/10`;
+        pCnt.textContent = `${chars(data.parties[i]).length}/10`;
+
+        const handleNameInput = e => {
+          data.names[i] = clean(n.value);
+          if (!e.isComposing && n.value !== data.names[i]) {
+            n.value = data.names[i];
+          }
+          nmCnt.textContent = `${chars(data.names[i]).length}/10`;
+          refresh();
+        };
+
+        const handlePartyInput = e => {
+          data.parties[i] = clean(p.value);
+          if (!e.isComposing && p.value !== data.parties[i]) {
+            p.value = data.parties[i];
+          }
+          pCnt.textContent = `${chars(data.parties[i]).length}/10`;
+          refresh();
+        };
+
+        n.addEventListener('input', handleNameInput);
+        n.addEventListener('compositionend', handleNameInput);
+        p.addEventListener('input', handlePartyInput);
+        p.addEventListener('compositionend', handlePartyInput);
+
+        target.appendChild(node);
+      }
+
+      refresh();
+    }
+
+    function refresh() {
+      save();
+      applyTypographyVariables();
+      updateLayoutChipsUI();
+
+      const { mode, cols, rows, copies } = resolveGrid();
+      const sheet = el('sheet');
+      sheet.className = `sheet grid-${mode} cols-${cols} rows-${rows} q-${data.quantity}`;
+      sheet.innerHTML = ballot(cols).repeat(copies);
+      fit();
+    }
+
+    // 이벤트 바인딩
+    el('title').addEventListener('input', e => {
+      data.title = e.target.value;
+      refresh();
+    });
+
+    el('quantity').addEventListener('change', e => {
+      data.quantity = Number(e.target.value);
+      render();
+    });
+
+    el('party-toggle').addEventListener('change', e => {
+      data.party = e.target.checked;
+      render();
+    });
+
+    // 용지 배치 버튼 클릭
+    el('layout-chips').addEventListener('click', e => {
+      const btn = e.target.closest('.chip-btn');
+      if (!btn || btn.disabled) return;
+      data.layoutMode = btn.dataset.layout;
+      refresh();
+    });
+
+    // 글자 꾸미기 토글
+    el('toggle-style-btn').addEventListener('click', () => {
+      const drawer = el('style-drawer');
+      const isOpen = drawer.classList.toggle('open');
+      el('toggle-style-btn').classList.toggle('active', isOpen);
+      if (isOpen) {
+        drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+
+    // 스타일 컨트롤 이벤트
+    const bindStyleChange = (id, prop, isNum = false) => {
+      el(id).addEventListener('input', e => {
+        data.style[prop] = isNum ? Number(e.target.value) : e.target.value;
+        syncStyleUI();
+        document.querySelectorAll('#preset-grid .preset-btn').forEach(b => b.classList.remove('active'));
+        refresh();
+      });
+    };
+
+    bindStyleChange('title-font', 'titleFont');
+    bindStyleChange('body-font', 'bodyFont');
+    bindStyleChange('title-scale', 'titleScale', true);
+    bindStyleChange('name-scale', 'nameScale', true);
+    bindStyleChange('sub-scale', 'subScale', true);
+    bindStyleChange('title-weight', 'titleWeight');
+    bindStyleChange('name-weight', 'nameWeight');
+    bindStyleChange('wrap-mode', 'wrapMode');
+
+    // 빠른 테마 프리셋
+    const PRESETS = {
+      default: { ...DEFAULT_STYLE },
+      official: {
+        titleFont: 'noto-serif',
+        bodyFont: 'noto-serif',
+        titleScale: 100,
+        nameScale: 105,
+        subScale: 100,
+        titleWeight: '700',
+        nameWeight: '700',
+        wrapMode: 'auto'
+      },
+      friendly: {
+        titleFont: 'jua',
+        bodyFont: 'gowun-dodum',
+        titleScale: 110,
+        nameScale: 105,
+        subScale: 100,
+        titleWeight: '400',
+        nameWeight: '700',
+        wrapMode: 'auto'
+      },
+      large: {
+        titleFont: 'noto-sans',
+        bodyFont: 'noto-sans',
+        titleScale: 115,
+        nameScale: 120,
+        subScale: 115,
+        titleWeight: '800',
+        nameWeight: '800',
+        wrapMode: 'auto'
+      }
+    };
+
+    el('preset-grid').addEventListener('click', e => {
+      const btn = e.target.closest('.preset-btn');
+      if (!btn) return;
+      const preset = PRESETS[btn.dataset.preset];
+      if (!preset) return;
+      data.style = { ...preset };
+      document.querySelectorAll('#preset-grid .preset-btn').forEach(b => {
+        b.classList.toggle('active', b === btn);
+      });
+      syncStyleUI();
+      refresh();
+    });
+
+    el('reset-style').addEventListener('click', () => {
+      data.style = { ...DEFAULT_STYLE };
+      document.querySelectorAll('#preset-grid .preset-btn').forEach(b => b.classList.remove('active'));
+      syncStyleUI();
+      refresh();
+    });
+
+    el('reset').addEventListener('click', () => {
+      if (confirm('모든 입력과 글자 꾸미기 설정을 초기화할까요?')) {
+        data = defaultState();
+        render();
+      }
+    });
+
+    el('print').addEventListener('click', async () => {
+      if (!data.title.trim() || data.names.slice(0, data.quantity).some(x => !x.trim())) {
+        alert('투표 제목과 모든 후보 이름을 입력해 주세요.');
+        return;
+      }
+      if (document.fonts && document.fonts.ready) {
+        try { await document.fonts.ready; } catch {}
+      }
+      window.print();
+    });
+
+    addEventListener('resize', fit);
+    render();
+  </script>
+</body>
+</html>
