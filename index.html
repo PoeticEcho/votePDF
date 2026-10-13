@@ -3,7 +3,58 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>투표용지 만들기 · 디지털 투표</title>
+  <title>투표용지 만들기 | 무료 A4 PDF 제작·인쇄·온라인 투표</title>
+  <meta name="description" content="무료 투표용지 만들기. 후보자·정당·글꼴을 설정해 A4 투표용지를 제작하고 PDF로 저장·인쇄하세요. 학교·동아리 선거와 24시간 온라인 투표, 실시간 집계도 지원합니다.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#174a74">
+  <link rel="canonical" href="https://poeticecho.github.io/votePDF/">
+
+  <!-- Open Graph: 카카오톡·페이스북 등 공유 미리보기 -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:site_name" content="투표용지 만들기">
+  <meta property="og:title" content="투표용지 만들기 | A4 PDF 제작·온라인 투표">
+  <meta property="og:description" content="A4 투표용지를 직접 만들고 PDF로 저장·인쇄하세요. 디지털 투표와 24시간 공유, 실시간 집계까지 지원합니다.">
+  <meta property="og:url" content="https://poeticecho.github.io/votePDF/">
+  <meta property="og:image" content="https://poeticecho.github.io/votePDF/og.png">
+  <meta property="og:image:secure_url" content="https://poeticecho.github.io/votePDF/og.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="투표용지 만들기 - PDF 저장, 인쇄 및 디지털 투표 서비스">
+
+  <!-- X(Twitter) 카드 -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="투표용지 만들기 | 무료 PDF 제작·온라인 투표">
+  <meta name="twitter:description" content="A4 투표용지 PDF 제작·인쇄부터 24시간 온라인 투표와 실시간 집계까지.">
+  <meta name="twitter:image" content="https://poeticecho.github.io/votePDF/og.png">
+
+  <!-- favicon: GitHub Pages 프로젝트 경로를 포함 -->
+  <link rel="icon" type="image/x-icon" href="/votePDF/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/votePDF/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/votePDF/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/votePDF/apple-touch-icon.png">
+
+  <!-- Schema.org: 실제 웹 애플리케이션 기능에 맞춘 구조화 데이터 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "투표용지 만들기",
+    "url": "https://poeticecho.github.io/votePDF/",
+    "description": "무료 A4 투표용지 제작, PDF 저장과 인쇄, 24시간 디지털 투표 공유 및 실시간 집계를 지원하는 웹 도구",
+    "inLanguage": "ko-KR",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "image": "https://poeticecho.github.io/votePDF/og.png",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "KRW"
+    }
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;600;700&family=Jua&family=Nanum+Gothic:wght@400;700;800&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@400;600;700;800&family=Noto+Serif+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -1306,8 +1357,11 @@
       backdrop-filter: none;
     }
 
-    body.voter-only-mode .close-modal-btn {
-      display: none;
+    body.voter-only-mode .close-modal-btn,
+    body.voter-only-mode #kiosk-admin-controls,
+    body.voter-only-mode #share-box,
+    body.voter-only-mode #reset-votes-btn {
+      display: none !important;
     }
 
     /* ==========================================
@@ -1884,7 +1938,7 @@
                 <div class="selected-notice" id="selected-candidate-notice">아직 기표하지 않았습니다. 투표용지 칸을 눌러주세요.</div>
                 <button type="button" class="submit-vote-btn" id="submit-vote-btn" disabled>🗳️ 기표함에 넣기 (투표 제출)</button>
 
-                <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #cbd5e1;display:grid;gap:8px">
+                <div id="kiosk-admin-controls" style="margin-top:14px;padding-top:12px;border-top:1px dashed #cbd5e1;display:grid;gap:8px">
                   <label class="sub-check" style="gap:6px;font-size:13px;color:#1e293b">
                     <span>🖥️ 한 기기에서 연속 투표 (현장 키오스크 모드)</span>
                     <input type="checkbox" id="kiosk-mode-toggle">
@@ -2012,12 +2066,37 @@
       return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
     }
 
-    function computeEntrySig(pollId) {
-      return cyrb53('vpdf_official_entry_' + pollId, 77).slice(0, 5);
+    function randomSecretToken(len = 6) {
+      return (Math.random().toString(36).slice(2) + Date.now().toString(36)).slice(0, len);
     }
 
-    function generateTicketCode() {
-      return Math.random().toString(36).slice(2, 5) + Date.now().toString(36).slice(-2);
+    // 단톡방 공유 토큰(&s=...)의 단방향 검증 해시 (네트워크/소스코드에 원본 토큰이 절대 노출되지 않음)
+    function hashGroupSecret(pollId, groupSecret) {
+      return cyrb53(`vpdf_grp_${pollId}_${groupSecret}`, 77);
+    }
+
+    // 관리자 비밀키(adminSecret)의 단방향 검증 해시 (외부인의 config/reset 위조 패킷 차단용)
+    function hashAdminSecret(pollId, adminSecret) {
+      return cyrb53(`vpdf_adm_${pollId}_${adminSecret}`, 101);
+    }
+
+    // 1회용 티켓 코드(&t=...) 생성: 4자리 난수 + 3자리 체크섬 서명(총 7자리) 및 단방향 발급 원장 해시
+    function generateTicketCode(pollId) {
+      const pid = pollId || 'default';
+      const raw = (Math.random().toString(36).slice(2, 5) + Date.now().toString(36).slice(-1)).padEnd(4, 'x').slice(0, 4);
+      const mac = cyrb53(`vpdf_tk_${pid}_${raw}`, 83).slice(0, 3);
+      return raw + mac;
+    }
+
+    function verifyTicketChecksum(pollId, tk) {
+      if (typeof tk !== 'string' || tk.length !== 7) return false;
+      const raw = tk.slice(0, 4);
+      const mac = tk.slice(4, 7);
+      return mac === cyrb53(`vpdf_tk_${pollId}_${raw}`, 83).slice(0, 3);
+    }
+
+    function hashIssuedTicket(pollId, tk) {
+      return cyrb53(`vpdf_issued_${pollId}_${tk}`, 91);
     }
 
     // 기기 고유 voterId 보장 (localStorage + Cookie + window.name 다중 백업)
@@ -2098,6 +2177,8 @@
       style: { ...DEFAULT_STYLE },
       official: { ...DEFAULT_OFFICIAL },
       pollId: randomPollId(),
+      groupSecret: randomSecretToken(6),
+      adminSecret: randomSecretToken(8),
       expiresAt: Date.now() + 24 * 60 * 60 * 1000
     });
 
@@ -2142,19 +2223,20 @@
 
       const sessionAuthKey = `vpdf_entry_auth_${data.pollId}`;
       if (urlTicketParam) {
-        voterSessionAuth = { mode: 'onetime', ticket: urlTicketParam.trim(), sig: null };
-        try { sessionStorage.setItem(sessionAuthKey, JSON.stringify(voterSessionAuth)); } catch {}
+        const tk = urlTicketParam.trim();
+        if (verifyTicketChecksum(data.pollId, tk)) {
+          voterSessionAuth = { mode: 'onetime', ticket: tk, sig: null };
+          try { sessionStorage.setItem(sessionAuthKey, JSON.stringify(voterSessionAuth)); } catch {}
+        } else {
+          voterSessionAuth = { mode: 'invalid_ticket', ticket: tk, sig: null };
+        }
         // 주소창에서 1회용 티켓(?t=...) 즉시 제거하여 주소 복사 재공유 원천 차단
         if (history.replaceState) {
           try { history.replaceState(null, '', `${location.pathname}?p=${encodeURIComponent(data.pollId)}`); } catch {}
         }
       } else if (urlSigParam) {
-        if (urlSigParam.trim() === computeEntrySig(data.pollId)) {
-          voterSessionAuth = { mode: 'group', ticket: null, sig: urlSigParam.trim() };
-          try { sessionStorage.setItem(sessionAuthKey, JSON.stringify(voterSessionAuth)); } catch {}
-        } else {
-          voterSessionAuth = { mode: 'unauthorized_reshare', ticket: null, sig: null };
-        }
+        voterSessionAuth = { mode: 'group', ticket: null, sig: urlSigParam.trim() };
+        try { sessionStorage.setItem(sessionAuthKey, JSON.stringify(voterSessionAuth)); } catch {}
         // 주소창에서 입장 서명(?s=...) 즉시 제거하여 주소창 복사 재공유 원천 차단
         if (history.replaceState) {
           try { history.replaceState(null, '', `${location.pathname}?p=${encodeURIComponent(data.pollId)}`); } catch {}
@@ -2192,6 +2274,8 @@
             style: { ...DEFAULT_STYLE, ...(saved.style || {}) },
             official: { ...DEFAULT_OFFICIAL, ...(saved.official || {}) },
             pollId: (saved.pollId && saved.pollId.length <= 8) ? saved.pollId : randomPollId(),
+            groupSecret: (saved.groupSecret && saved.groupSecret.length >= 4) ? saved.groupSecret : base.groupSecret,
+            adminSecret: (saved.adminSecret && saved.adminSecret.length >= 6) ? saved.adminSecret : base.adminSecret,
             expiresAt: Number(saved.expiresAt) || (Date.now() + 24 * 60 * 60 * 1000)
           };
         }
@@ -2662,7 +2746,7 @@
 
     /* =========================================================
        디지털 투표해보기 & 24시간 공유하기 & 실시간 집계 시스템
-       (1회용 티켓 자동회전 + 하드웨어/IP 지문 + 주소창 은닉 중복차단 엔진)
+       (1회용 서명 티켓 자동회전 + 블라인드 하드웨어/IP 지문 + 관리자 패킷 서명 엔진)
        ========================================================= */
     let currentChoice = null;
     let voteCounts = [];
@@ -2670,8 +2754,11 @@
     let votedHwSet = new Set();
     let votedNetSet = new Set();
     let burnedTickets = new Set();
-    let claimedTickets = new Map(); // ticket -> { hwFp, ts }
+    let issuedTicketHashes = new Set();
+    let claimedTickets = new Map(); // ticket -> { bhw, ts }
     let lastDeviceVoteTimeMap = new Map();
+    let lockedAdminHash = '';
+    let expectedGroupHash = '';
     let sseConnection = null;
     let timerInterval = null;
     let cooldownInterval = null;
@@ -2680,9 +2767,15 @@
     let soundEnabled = true;
     let audioCtx = null;
     let shareSecurityMode = 'onetime'; // 'onetime' | 'group'
-    let activeOneTimeTicket = generateTicketCode();
+    let activeOneTimeTicket = generateTicketCode(data.pollId);
     let idbVotedCache = false;
     const COOLDOWN_SECONDS = 15;
+
+    // 공유 링크 참여자는 키오스크 모드를 절대 켤 수 없도록 격리 (보안 구멍 #1 해결)
+    function isKioskModeActive() {
+      if (isSharedVoterMode) return false;
+      return el('kiosk-mode-toggle').checked || document.body.classList.contains('kiosk-fullscreen-mode');
+    }
 
     // 1. 디바이스 하드웨어 핑거프린팅 (시크릿 모드 · 타 브라우저 · 쿠키 삭제 우회 차단)
     function computeHardwareFingerprint() {
@@ -2734,6 +2827,19 @@
 
     const myHwFp = computeHardwareFingerprint();
     let myNetFp = '';
+
+    // 비밀투표 보호를 위한 투표함별 단방향 블라인드 해시 (보안 구멍 #6 해결: 평문 기기지문 노출 차단)
+    function getMyBlindHw() {
+      return 'bhw_' + cyrb53(`bhw_${data.pollId}_${myHwFp}`, 61);
+    }
+
+    function getMyBlindNet() {
+      return myNetFp ? ('bnet_' + cyrb53(`bnet_${data.pollId}_${myNetFp}`, 67)) : '';
+    }
+
+    function getMyBlindVoterId() {
+      return 'bvid_' + cyrb53(`bvid_${data.pollId}_${deviceVoterId}`, 71);
+    }
 
     // 2. 공인 IP + 물리 기기 규격 결합 지문 (동일 스마트폰 내 카톡 인앱 ↔ 크롬/사파리 교차 중복투표 차단)
     async function initNetworkDeviceFingerprint() {
@@ -2864,8 +2970,7 @@
 
     // 현재 참여자의 중복투표 및 무단 재공유 차단 사유 판별
     function getVoterBlockStatus() {
-      const isKiosk = el('kiosk-mode-toggle').checked || document.body.classList.contains('kiosk-fullscreen-mode');
-      if (isKiosk) return null;
+      if (isKioskModeActive()) return null;
 
       // 1) 주소창 URL 단순 복사 재공유 차단 (티켓이나 서명이 없는 링크)
       if (isSharedVoterMode && voterSessionAuth.mode === 'unauthorized_reshare') {
@@ -2875,10 +2980,39 @@
         };
       }
 
-      // 2) 이 기기에서 이미 투표 완료한 경우 (로컬 4중 저장소 + 서버 하드웨어 지문 + 공인 IP 기기 지문)
+      // 2) 위조·변조된 1회용 티켓 코드 차단 (보안 구멍 #2 해결)
+      if (isSharedVoterMode && voterSessionAuth.mode === 'invalid_ticket') {
+        return {
+          code: 'invalid_ticket',
+          msg: '🚫 유효하지 않거나 임의로 조작된 QR 티켓 코드입니다.'
+        };
+      }
+
+      // 3) 단톡방 다인 공유 서명(&s=...) 검증 (보안 구멍 #3 해결: 단방향 해시 대조)
+      if (isSharedVoterMode && voterSessionAuth.mode === 'group') {
+        const sig = voterSessionAuth.sig || '';
+        const legacySig = cyrb53('vpdf_official_entry_' + data.pollId, 77).slice(0, 5);
+        if (expectedGroupHash) {
+          const candHash = hashGroupSecret(data.pollId, sig);
+          if (candHash !== expectedGroupHash && sig !== legacySig) {
+            return {
+              code: 'invalid_group_sig',
+              msg: '🚫 유효하지 않거나 만료된 공유 링크 서명입니다.'
+            };
+          }
+        }
+      }
+
+      // 4) 이 기기에서 이미 투표 완료한 경우 (로컬 4중 저장소 + 서버 블라인드 하드웨어 지문 + 공인 IP 기기 지문)
+      const myBhw = getMyBlindHw();
+      const myBnet = getMyBlindNet();
+      const myBvid = getMyBlindVoterId();
       const votedOnLedger =
+        votedRegistry.has(myBvid) ||
         votedRegistry.has(deviceVoterId) ||
-        (myHwFp && votedHwSet.has(myHwFp)) ||
+        votedHwSet.has(myBhw) ||
+        votedHwSet.has(myHwFp) ||
+        (myBnet && votedNetSet.has(myBnet)) ||
         (myNetFp && votedNetSet.has(myNetFp));
 
       if (hasDeviceVotedLocally() || votedOnLedger) {
@@ -2888,9 +3022,21 @@
         };
       }
 
-      // 3) 1회용 스마트 QR 티켓(t) 검증: 이미 투표에 사용(소각)되었거나 다른 기기가 먼저 스캔해 선점한 경우
+      // 5) 1회용 스마트 QR 티켓(t) 검증: 정품 발급 원장 확인 + 소각 여부 + 타 기기 선점 여부
       if (isSharedVoterMode && voterSessionAuth.mode === 'onetime' && voterSessionAuth.ticket) {
         const tk = voterSessionAuth.ticket;
+        if (!verifyTicketChecksum(data.pollId, tk)) {
+          return {
+            code: 'invalid_ticket',
+            msg: '🚫 유효하지 않거나 위조된 1회용 티켓입니다.'
+          };
+        }
+        if (issuedTicketHashes.size > 0 && !issuedTicketHashes.has(hashIssuedTicket(data.pollId, tk))) {
+          return {
+            code: 'unissued_ticket',
+            msg: '🚫 관리자가 정식 발급하지 않은 티켓 코드입니다.'
+          };
+        }
         if (burnedTickets.has(tk)) {
           return {
             code: 'ticket_burned',
@@ -2898,7 +3044,7 @@
           };
         }
         const claimInfo = claimedTickets.get(tk);
-        if (claimInfo && claimInfo.hwFp && claimInfo.hwFp !== myHwFp && (Date.now() - claimInfo.ts < 10 * 60 * 1000)) {
+        if (claimInfo && claimInfo.bhw && claimInfo.bhw !== myBhw && (Date.now() - claimInfo.ts < 10 * 60 * 1000)) {
           return {
             code: 'ticket_claimed_other',
             msg: '🚫 이미 다른 스마트폰에서 먼저 스캔하여 사용 중인 1회용 QR코드입니다. (캡처·재공유 차단됨)'
@@ -3131,15 +3277,38 @@
       votedHwSet = new Set();
       votedNetSet = new Set();
       burnedTickets = new Set();
+      issuedTicketHashes = new Set();
       claimedTickets = new Map();
       lastDeviceVoteTimeMap = new Map();
+      lockedAdminHash = '';
+      expectedGroupHash = '';
+    }
+
+    // 관리자가 새 1회용 티켓을 발급했을 때 단방향 해시만 서버 원장에 등록
+    async function publishIssuedTicketHash(tk) {
+      if (isSharedVoterMode || !tk) return;
+      const th = hashIssuedTicket(data.pollId, tk);
+      issuedTicketHashes.add(th);
+      const ah = hashAdminSecret(data.pollId, data.adminSecret);
+      const msg = JSON.stringify({
+        type: 'issue',
+        th,
+        ah,
+        isig: cyrb53(`${ah}|${th}`, 103)
+      });
+      try {
+        await fetch(`https://ntfy.sh/${getTopicName()}`, {
+          method: 'POST',
+          body: msg
+        });
+      } catch {}
     }
 
     // 1회용 스마트 QR 스캔 시 서버에 즉시 선점(Claim) 신호를 보내 관리자 화면 QR을 자동 회전시킴
     async function announceTicketClaimIfNeeded() {
       if (!isSharedVoterMode || voterSessionAuth.mode !== 'onetime' || !voterSessionAuth.ticket) return;
       const tk = voterSessionAuth.ticket;
-      if (burnedTickets.has(tk)) return;
+      if (!verifyTicketChecksum(data.pollId, tk) || burnedTickets.has(tk)) return;
       const claimSentKey = `vpdf_claim_sent_${data.pollId}_${tk}`;
       if (sessionStorage.getItem(claimSentKey) === '1') return;
       try { sessionStorage.setItem(claimSentKey, '1'); } catch {}
@@ -3147,7 +3316,7 @@
       const claimPayload = JSON.stringify({
         type: 'claim',
         ticket: tk,
-        hwFp: myHwFp,
+        bhw: getMyBlindHw(),
         ts: Date.now()
       });
       processVoteMessage(claimPayload);
@@ -3161,11 +3330,12 @@
 
     // 관리자 화면: 현재 표시된 1회용 QR 티켓이 스캔되거나 투표되면 자동으로 새 티켓 QR로 회전
     function rotateActiveTicket(reasonText = '🔄 스캔 감지 → 새 1회용 티켓 자동 발급됨') {
-      let nextTk = generateTicketCode();
+      let nextTk = generateTicketCode(data.pollId);
       while (burnedTickets.has(nextTk) || claimedTickets.has(nextTk) || nextTk === activeOneTimeTicket) {
-        nextTk = generateTicketCode();
+        nextTk = generateTicketCode(data.pollId);
       }
       activeOneTimeTicket = nextTk;
+      publishIssuedTicketHash(activeOneTimeTicket);
       if (!isSharedVoterMode && shareSecurityMode === 'onetime') {
         updateShareLinkBox(reasonText);
         const qrImg = el('share-qr-img');
@@ -3178,17 +3348,29 @@
 
     async function publishPollConfig(force = false) {
       if (isSharedVoterMode) return;
+      const ah = hashAdminSecret(data.pollId, data.adminSecret);
+      const gh = hashGroupSecret(data.pollId, data.groupSecret);
+      const th = hashIssuedTicket(data.pollId, activeOneTimeTicket);
+      issuedTicketHashes.add(th);
+
+      const namesSlice = data.names.slice(0, data.quantity);
+      const csig = cyrb53(`${ah}|${data.title}|${data.quantity}|${namesSlice.join(',')}|${gh}|${data.expiresAt}`, 109);
+
       const cfgObj = {
         type: 'config',
         t: data.title,
         q: data.quantity,
         p: data.party ? 1 : 0,
         l: data.layoutMode,
-        n: data.names.slice(0, data.quantity),
+        n: namesSlice,
         pa: data.party ? data.parties.slice(0, data.quantity) : [],
         s: data.style,
         o: data.official,
-        ex: data.expiresAt
+        ex: data.expiresAt,
+        ah,
+        gh,
+        th,
+        csig
       };
       const cfgStr = JSON.stringify(cfgObj);
       const cacheKey = `vpdf_cfg_sent_${data.pollId}`;
@@ -3207,47 +3389,82 @@
     function processVoteMessage(rawMsg) {
       try {
         const parsed = JSON.parse(rawMsg);
+
+        // 외부인의 무단 reset 주입 방어 (보안 구멍 #4 해결)
         if (parsed.type === 'reset') {
+          if (lockedAdminHash && parsed.ah !== lockedAdminHash) return;
           initVoteCounts();
           return;
         }
+
+        // 관리자가 정식 발급한 1회용 티켓 해시 등록
+        if (parsed.type === 'issue' && parsed.th) {
+          if (lockedAdminHash && parsed.ah && parsed.ah !== lockedAdminHash) return;
+          if (parsed.ah && parsed.isig === cyrb53(`${parsed.ah}|${parsed.th}`, 103)) {
+            issuedTicketHashes.add(String(parsed.th));
+          }
+          return;
+        }
+
         if (parsed.type === 'claim' && parsed.ticket) {
           const tk = String(parsed.ticket);
+          if (!verifyTicketChecksum(data.pollId, tk)) return;
+          const claimerHash = parsed.bhw || parsed.hwFp || '';
           if (!claimedTickets.has(tk)) {
-            claimedTickets.set(tk, { hwFp: parsed.hwFp || '', ts: Number(parsed.ts) || Date.now() });
+            claimedTickets.set(tk, { bhw: claimerHash, ts: Number(parsed.ts) || Date.now() });
           }
           // 관리자가 띄워둔 1회용 QR이 스캔(Claim)되는 즉시 다음 사람을 위해 새 1회용 QR로 무인 자동 교체!
           if (!isSharedVoterMode && tk === activeOneTimeTicket) {
-            rotateActiveTicket(`🔄 스캔 감지됨 → 새 티켓(#${activeOneTimeTicket.toUpperCase()}) 자동 갱신!`);
+            rotateActiveTicket(`🔄 스캔 감지됨 → 새 티켓(#${activeOneTimeTicket.slice(0, 4).toUpperCase()}) 자동 갱신!`);
           }
           if (isSharedVoterMode) {
             renderInteractiveBallot();
           }
           return;
         }
-        if (parsed.type === 'config' && isSharedVoterMode) {
-          const prevQ = data.quantity;
-          data.title = typeof parsed.t === 'string' ? parsed.t.slice(0, 100) : data.title;
-          data.quantity = Math.min(8, Math.max(1, Number(parsed.q) || 4));
-          data.party = !!parsed.p;
-          data.layoutMode = parsed.l || 'auto';
-          data.names = Array.from({ length: 8 }, (_, i) => clean(parsed.n?.[i] ?? defaults[i]));
-          data.parties = Array.from({ length: 8 }, (_, i) => clean(parsed.pa?.[i] ?? ''));
-          data.style = { ...DEFAULT_STYLE, ...(parsed.s || {}) };
-          data.official = { ...DEFAULT_OFFICIAL, ...(parsed.o || {}) };
-          data.expiresAt = Number(parsed.ex) || data.expiresAt;
-          if (prevQ !== data.quantity) {
-            const slots = data.quantity === 1 ? 2 : data.quantity;
-            if (voteCounts.length !== slots) {
-              voteCounts = Array(slots).fill(0);
+
+        if (parsed.type === 'config') {
+          // 최초 등록된 관리자 해시(ah) 잠금 및 무결성 서명(csig) 검증으로 외부 config 변조 차단 (보안 구멍 #4 해결)
+          if (parsed.ah) {
+            const expectedCsig = cyrb53(
+              `${parsed.ah}|${parsed.t || ''}|${parsed.q || 4}|${(parsed.n || []).join(',')}|${parsed.gh || ''}|${parsed.ex || 0}`,
+              109
+            );
+            if (parsed.csig && parsed.csig !== expectedCsig) return;
+            if (!lockedAdminHash) {
+              lockedAdminHash = String(parsed.ah);
+            } else if (lockedAdminHash !== String(parsed.ah)) {
+              return;
             }
           }
-          applyTypographyVariables();
-          el('digital-modal-title').textContent = `🗳️ ${data.title.trim() || '디지털 투표소'}`;
-          updateTimerUI();
-          renderInteractiveBallot();
+          if (parsed.gh) expectedGroupHash = String(parsed.gh);
+          if (parsed.th) issuedTicketHashes.add(String(parsed.th));
+
+          if (isSharedVoterMode) {
+            const prevQ = data.quantity;
+            data.title = typeof parsed.t === 'string' ? parsed.t.slice(0, 100) : data.title;
+            data.quantity = Math.min(8, Math.max(1, Number(parsed.q) || 4));
+            data.party = !!parsed.p;
+            data.layoutMode = parsed.l || 'auto';
+            data.names = Array.from({ length: 8 }, (_, i) => clean(parsed.n?.[i] ?? defaults[i]));
+            data.parties = Array.from({ length: 8 }, (_, i) => clean(parsed.pa?.[i] ?? ''));
+            data.style = { ...DEFAULT_STYLE, ...(parsed.s || {}) };
+            data.official = { ...DEFAULT_OFFICIAL, ...(parsed.o || {}) };
+            data.expiresAt = Number(parsed.ex) || data.expiresAt;
+            if (prevQ !== data.quantity) {
+              const slots = data.quantity === 1 ? 2 : data.quantity;
+              if (voteCounts.length !== slots) {
+                voteCounts = Array(slots).fill(0);
+              }
+            }
+            applyTypographyVariables();
+            el('digital-modal-title').textContent = `🗳️ ${data.title.trim() || '디지털 투표소'}`;
+            updateTimerUI();
+            renderInteractiveBallot();
+          }
           return;
         }
+
         if (parsed.type === 'vote' && typeof parsed.choice === 'number') {
           const slots = data.quantity === 1 ? 2 : data.quantity;
           if (parsed.choice >= 0 && parsed.choice < slots) {
@@ -3256,37 +3473,53 @@
 
             if (votedRegistry.has(vKey)) return;
 
-            // 1) 1회용 티켓 중복 사용 검증: 이미 소각된 티켓으로 들어온 투표 패킷은 집계에서 거부
+            // 1) 1회용 티켓 진위 및 중복 사용 검증 (보안 구멍 #2 해결)
             if (parsed.ticket) {
               const tk = String(parsed.ticket);
+              if (!verifyTicketChecksum(data.pollId, tk)) return;
+              if (issuedTicketHashes.size > 0 && !issuedTicketHashes.has(hashIssuedTicket(data.pollId, tk))) return;
               if (burnedTickets.has(tk)) return;
               burnedTickets.add(tk);
               if (!isSharedVoterMode && tk === activeOneTimeTicket) {
-                rotateActiveTicket(`✅ 1회 투표 완료 → 새 티켓(#${activeOneTimeTicket.toUpperCase()}) 자동 발급!`);
+                rotateActiveTicket(`✅ 1회 투표 완료 → 새 티켓(#${activeOneTimeTicket.slice(0, 4).toUpperCase()}) 자동 발급!`);
               }
             }
 
-            // 2) 비-키오스크(일반 공유 투표)일 때 하드웨어 지문(hwFp) 및 공인IP+기기 지문(netFp) 중복 검증
+            const bhw = parsed.bhw || parsed.hwFp || '';
+            const bnet = parsed.bnet || parsed.netFp || '';
+
+            // 2) 비-키오스크(일반 공유 투표)일 때 블라인드 하드웨어 지문(bhw) 및 네트워크+기기 지문(bnet) 중복 검증
             if (!isKioskVote) {
-              if (parsed.hwFp && votedHwSet.has(parsed.hwFp)) return;
-              if (parsed.netFp && votedNetSet.has(parsed.netFp)) return;
+              if (bhw && votedHwSet.has(bhw)) return;
+              if (bnet && votedNetSet.has(bnet)) return;
             }
 
-            // 3) 동일 물리 기기(deviceBaseId)에서 14초 이내 연속 투표 패킷은 물리적으로 필터링
+            // 3) 14초 이내 연속 투표 패킷 물리적 필터링 (보안 구멍 #5 해결: 기기ID + 하드웨어지문 + 네트워크지문 + 키오스크 전역 간격 동시 검사)
             const deviceBase = String(vKey).split('_kiosk_')[0];
             const voteTs = Number(parsed.ts) || 0;
-            if (deviceBase && voteTs > 0) {
-              const prevTs = lastDeviceVoteTimeMap.get(deviceBase) || 0;
-              if (prevTs > 0 && Math.abs(voteTs - prevTs) < (COOLDOWN_SECONDS - 1) * 1000) {
-                return;
+            const minGapMs = (COOLDOWN_SECONDS - 1) * 1000;
+            if (voteTs > 0) {
+              const checkKeys = [deviceBase];
+              if (bhw) checkKeys.push(bhw);
+              if (bnet) checkKeys.push(bnet);
+              if (isKioskVote) checkKeys.push('__kiosk_global__');
+
+              for (const ck of checkKeys) {
+                if (!ck) continue;
+                const prevTs = lastDeviceVoteTimeMap.get(ck) || 0;
+                if (prevTs > 0 && Math.abs(voteTs - prevTs) < minGapMs) {
+                  return;
+                }
               }
-              lastDeviceVoteTimeMap.set(deviceBase, voteTs);
+              for (const ck of checkKeys) {
+                if (ck) lastDeviceVoteTimeMap.set(ck, voteTs);
+              }
             }
 
             votedRegistry.add(vKey);
             if (!isKioskVote) {
-              if (parsed.hwFp) votedHwSet.add(parsed.hwFp);
-              if (parsed.netFp) votedNetSet.add(parsed.netFp);
+              if (bhw) votedHwSet.add(bhw);
+              if (bnet) votedNetSet.add(bnet);
             }
             voteCounts[parsed.choice] = (voteCounts[parsed.choice] || 0) + 1;
           }
@@ -3389,7 +3622,7 @@
         return;
       }
 
-      const isKiosk = el('kiosk-mode-toggle').checked || document.body.classList.contains('kiosk-fullscreen-mode');
+      const isKiosk = isKioskModeActive();
       const submitBtn = el('submit-vote-btn');
       const floatYesBtn = el('floating-yes-btn');
       submitBtn.disabled = true;
@@ -3408,16 +3641,17 @@
 
       const chosenIdx = currentChoice;
       const nowTs = Date.now();
+      const blindVid = getMyBlindVoterId();
       const voterToken = isKiosk
-        ? `${deviceVoterId}_kiosk_${nowTs}_${Math.random().toString(36).slice(2, 6)}`
-        : deviceVoterId;
+        ? `${blindVid}_kiosk_${nowTs}_${Math.random().toString(36).slice(2, 6)}`
+        : blindVid;
 
       const voteObj = {
         type: 'vote',
         choice: chosenIdx,
         voterId: voterToken,
-        hwFp: isKiosk ? '' : myHwFp,
-        netFp: isKiosk ? '' : myNetFp,
+        bhw: isKiosk ? '' : getMyBlindHw(),
+        bnet: isKiosk ? '' : getMyBlindNet(),
         ticket: (isSharedVoterMode && voterSessionAuth.mode === 'onetime' && voterSessionAuth.ticket)
           ? voterSessionAuth.ticket
           : undefined,
@@ -3455,11 +3689,16 @@
     });
 
     el('kiosk-mode-toggle').addEventListener('change', () => {
+      if (isSharedVoterMode) {
+        el('kiosk-mode-toggle').checked = false;
+        return;
+      }
       renderInteractiveBallot();
     });
 
     // 현장 키오스크 전체화면 진입 및 2초 홀드 관리자 잠금 해제
     async function enterKioskFullscreen() {
+      if (isSharedVoterMode) return;
       el('kiosk-mode-toggle').checked = true;
       document.body.classList.add('kiosk-fullscreen-mode');
       switchDigitalTab('vote');
@@ -3525,18 +3764,24 @@
 
     // 공유 링크 및 QR코드 표시 (1회용 티켓 자동회전 모드 vs 단톡방 다인 고정서명 모드)
     function updateShareLinkBox(statusOverride = '') {
+      if (isSharedVoterMode) return;
       const baseUrl = (location.protocol === 'http:' || location.protocol === 'https:')
         ? (location.origin + location.pathname)
         : 'https://poeticecho.github.io/votePDF/';
+
+      if (!verifyTicketChecksum(data.pollId, activeOneTimeTicket)) {
+        activeOneTimeTicket = generateTicketCode(data.pollId);
+      }
 
       let shareUrl = '';
       if (shareSecurityMode === 'onetime') {
         shareUrl = `${baseUrl}?p=${encodeURIComponent(data.pollId)}&t=${encodeURIComponent(activeOneTimeTicket)}`;
         el('qr-mode-title').textContent = '🎫 1회용 스마트 QR (스캔·투표 시 자동 교체)';
         el('qr-mode-desc').textContent = '1명이 스캔·투표하면 해당 QR은 즉시 폐기(재공유·재투표 불가)되고, 하단 QR코드가 다음 티켓으로 자동 갱신됩니다.';
-        el('ticket-status-pill').textContent = statusOverride || `🛡️ 1회용 티켓 #${activeOneTimeTicket.toUpperCase()} 활성 중 (자동 회전 대기)`;
+        el('ticket-status-pill').textContent = statusOverride || `🛡️ 1회용 서명티켓 #${activeOneTimeTicket.slice(0, 4).toUpperCase()} 활성 중 (자동 회전 대기)`;
       } else {
-        const sig = computeEntrySig(data.pollId);
+        const sig = data.groupSecret || randomSecretToken(6);
+        data.groupSecret = sig;
         shareUrl = `${baseUrl}?p=${encodeURIComponent(data.pollId)}&s=${encodeURIComponent(sig)}`;
         el('qr-mode-title').textContent = '👥 단톡방·유인물 다인 공용 QR/링크';
         el('qr-mode-desc').textContent = '링크 1개로 여러 명이 투표하되, 하드웨어/IP 지문과 주소창 서명 은닉으로 1기기 1표만 허용하고 무단 재공유를 차단합니다.';
@@ -3561,8 +3806,9 @@
     });
 
     el('create-share-btn').addEventListener('click', async () => {
+      if (isSharedVoterMode) return;
       data.expiresAt = Date.now() + 24 * 60 * 60 * 1000;
-      activeOneTimeTicket = generateTicketCode();
+      activeOneTimeTicket = generateTicketCode(data.pollId);
       save();
       updateTimerUI();
       updateShareLinkBox('✨ 24시간 연장 및 새 보안 티켓이 발급되었습니다');
@@ -3579,8 +3825,9 @@
       } catch {
         document.execCommand('copy');
       }
-      // 1회용 스마트 티켓 모드에서 링크를 복사해 보낸 경우, 다음 사람을 위해 즉시 새 1회용 티켓으로 자동 회전!
+      // 1회용 스마트 티켓 모드에서 링크를 복사해 보낸 경우, 방금 복사한 티켓을 원장에 등록하고 다음 사람을 위해 새 티켓으로 자동 회전!
       if (shareSecurityMode === 'onetime') {
+        await publishIssuedTicketHash(activeOneTimeTicket);
         setTimeout(() => {
           rotateActiveTicket('📋 방금 복사한 1회용 링크 분리 완료 → 새 티켓 준비됨');
         }, 350);
@@ -3606,10 +3853,13 @@
     el('refresh-results-btn').addEventListener('click', () => fetchAllVotes());
 
     el('reset-votes-btn').addEventListener('click', async () => {
+      if (isSharedVoterMode) return;
       if (!confirm('현재 집계를 모두 0표로 초기화하고 새로운 24시간 투표함을 열까요?')) return;
       data.pollId = randomPollId();
+      data.groupSecret = randomSecretToken(6);
+      data.adminSecret = randomSecretToken(8);
       data.expiresAt = Date.now() + 24 * 60 * 60 * 1000;
-      activeOneTimeTicket = generateTicketCode();
+      activeOneTimeTicket = generateTicketCode(data.pollId);
       currentChoice = null;
       idbVotedCache = false;
       save();
