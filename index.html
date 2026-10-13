@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>투표용지 만들기</title>
+  <title>투표용지 만들기 · 디지털 투표</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;600;700&family=Jua&family=Nanum+Gothic:wght@400;700;800&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@400;600;700;800&family=Noto+Serif+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -72,6 +72,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      font-family: inherit;
     }
 
     button:hover {
@@ -91,6 +92,17 @@
       border-color: #3b82f6;
     }
 
+    button.vote-btn {
+      border-color: #fca5a5;
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    button.vote-btn:hover {
+      background: #fee2e2;
+      border-color: #ef4444;
+    }
+
     button.primary {
       background: #174a74;
       border-color: #174a74;
@@ -101,9 +113,19 @@
       background: #123a5c;
     }
 
+    button.danger {
+      background: #dc2626;
+      border-color: #dc2626;
+      color: white;
+    }
+
+    button.danger:hover {
+      background: #b91c1c;
+    }
+
     .layout {
       display: grid;
-      grid-template-columns: 390px minmax(0, 1fr);
+      grid-template-columns: 400px minmax(0, 1fr);
       gap: 24px;
     }
 
@@ -195,7 +217,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 13px 14px;
+      padding: 12px 14px;
       border: 1px solid #e2e8f0;
       border-radius: 10px;
       cursor: pointer;
@@ -203,10 +225,16 @@
       font-weight: 800;
       margin-bottom: 0;
       user-select: none;
+      background: #fff;
     }
 
     .toggle-row:hover {
       background: #f8fafc;
+    }
+
+    .toggle-row.highlight {
+      border-color: #bfdbfe;
+      background: #f0f7ff;
     }
 
     .toggle-row input {
@@ -215,6 +243,53 @@
       accent-color: #174a74;
       cursor: pointer;
       margin: 0;
+      flex-shrink: 0;
+    }
+
+    .sub-options {
+      margin-top: 8px;
+      padding: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .sub-check {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+    }
+
+    .sub-check input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: #174a74;
+      cursor: pointer;
+    }
+
+    .commission-input-wrap {
+      margin-top: 4px;
+      padding-top: 8px;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .commission-input-wrap label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 5px;
+    }
+
+    .commission-input-wrap input {
+      padding: 8px 10px !important;
+      font-size: 13px !important;
     }
 
     /* 글자 꾸미기 패널 */
@@ -435,9 +510,10 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      font-family: var(--ballot-body-font);
     }
 
-    /* 절취선 (열/행 수에 따라 적용) */
+    /* 절취선 */
     .sheet.cols-3 .ballot:not(:nth-child(3n+1)) {
       border-left: 0.23mm dashed #999;
     }
@@ -456,7 +532,7 @@
 
     /* 2행(컴팩트 높이 148.5mm) 스타일 */
     .rows-2 .ballot {
-      padding: 6mm 4mm 4mm;
+      padding: 5.5mm 4mm 3.5mm;
     }
 
     /* 2열(넓은 폭 105mm) 여백 보정 */
@@ -467,11 +543,11 @@
 
     /* 2행 + 4명일 때 세로 공간 최적화 */
     .rows-2.q-4 .ballot {
-      padding: 4.5mm 4mm 3.5mm;
+      padding: 4mm 4mm 3mm;
     }
 
     .cols-2.rows-2.q-4 .ballot {
-      padding: 4.5mm 8mm 3.5mm;
+      padding: 4mm 8mm 3mm;
     }
 
     .ballot-title {
@@ -482,7 +558,7 @@
       word-break: keep-all;
       overflow-wrap: anywhere;
       font-size: calc(13pt * var(--title-scale));
-      min-height: 24mm;
+      min-height: 22mm;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -490,12 +566,12 @@
 
     .rows-2 .ballot-title {
       font-size: calc(11pt * var(--title-scale));
-      min-height: 16mm;
+      min-height: 14mm;
     }
 
     .rows-2.q-4 .ballot-title {
-      font-size: calc(10.5pt * var(--title-scale));
-      min-height: 12.5mm;
+      font-size: calc(10pt * var(--title-scale));
+      min-height: 11mm;
     }
 
     .ballot-sub {
@@ -503,17 +579,17 @@
       font-weight: var(--title-weight);
       font-size: calc(10pt * var(--sub-scale));
       text-align: center;
-      margin: 0 0 8mm;
+      margin: 0 0 7mm;
     }
 
     .rows-2 .ballot-sub {
       font-size: calc(9pt * var(--sub-scale));
-      margin-bottom: 4.5mm;
+      margin-bottom: 4mm;
     }
 
     .rows-2.q-4 .ballot-sub {
       font-size: calc(8.5pt * var(--sub-scale));
-      margin-bottom: 3mm;
+      margin-bottom: 2.5mm;
     }
 
     .ballot table {
@@ -528,7 +604,7 @@
       border: 0.3mm solid #222;
       text-align: center;
       vertical-align: middle;
-      padding: 1.2mm 0.5mm;
+      padding: 1mm 0.5mm;
       overflow-wrap: anywhere;
     }
 
@@ -539,7 +615,46 @@
     }
 
     .ballot td {
-      height: 21mm;
+      height: 20mm;
+    }
+
+    /* 첨부 1번 그림: 후보자 칸 사이 여백 (선관위 분리형 양식) */
+    .ballot.row-gap-on table:not(.approval-table) {
+      border-collapse: separate;
+      border-spacing: 0 2.2mm;
+      border-left: 0.3mm solid #222;
+      border-right: 0.3mm solid #222;
+      border-top: 0.3mm solid #222;
+      border-bottom: 0.3mm solid #222;
+      padding: 1.5mm 0;
+    }
+
+    .rows-2 .ballot.row-gap-on table:not(.approval-table) {
+      border-spacing: 0 1.4mm;
+      padding: 1mm 0;
+    }
+
+    .ballot.row-gap-on table:not(.approval-table) th,
+    .ballot.row-gap-on table:not(.approval-table) td {
+      border-top: 0.3mm solid #222;
+      border-bottom: 0.3mm solid #222;
+      border-right: 0.3mm solid #222;
+      border-left: 0;
+    }
+
+    .ballot.row-gap-on table:not(.approval-table) th:last-child,
+    .ballot.row-gap-on table:not(.approval-table) td:last-child {
+      border-right: 0;
+    }
+
+    /* 기표 칸 강조 */
+    .ballot.row-gap-on table:not(.approval-table) td.stamp-cell {
+      box-shadow: inset 0 0 0 0.15mm #222;
+    }
+
+    .q-7 .ballot.row-gap-on td,
+    .q-8 .ballot.row-gap-on td {
+      height: 17.5mm;
     }
 
     .ballot .name,
@@ -573,16 +688,16 @@
 
     /* 2행(컴팩트) 셀 높이 및 글자 크기 */
     .rows-2 .ballot td {
-      height: 19mm;
+      height: 18mm;
     }
 
     .rows-2.q-4 .ballot td {
-      height: 16.8mm;
+      height: 15.2mm;
     }
 
     .rows-2 .ballot th,
     .rows-2 .ballot td {
-      padding: 0.5mm 0.25mm;
+      padding: 0.4mm 0.25mm;
     }
 
     .rows-2.cols-3 .ballot .name {
@@ -607,30 +722,33 @@
     }
 
     .mark {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       min-width: 7mm;
       min-height: 10mm;
-      width: 75%;
+      width: 100%;
       height: 12mm;
       margin: auto;
     }
 
     .rows-2 .mark {
-      min-height: 9mm;
-      height: 10.5mm;
+      min-height: 8.5mm;
+      height: 10mm;
     }
 
     .rows-2.q-4 .mark {
-      min-height: 8mm;
-      height: 9.5mm;
+      min-height: 7.5mm;
+      height: 8.8mm;
     }
 
+    /* 하단 일반 안내문 & 선관위 공식 청인/투표관리관 인장 */
     .ballot-footer {
       margin-top: auto;
       font-size: calc(8pt * var(--sub-scale));
       text-align: center;
       color: #555;
-      padding-top: 4mm;
+      padding-top: 3.5mm;
     }
 
     .rows-2 .ballot-footer {
@@ -639,11 +757,87 @@
     }
 
     .rows-2.q-4 .ballot-footer {
-      font-size: calc(6.8pt * var(--sub-scale));
-      padding-top: 1.5mm;
+      font-size: calc(6.6pt * var(--sub-scale));
+      padding-top: 1.2mm;
     }
 
-    /* 1명 찬반 투표 스타일 (이중 테두리 수정 포함) */
+    .official-footer {
+      margin-top: auto;
+      padding-top: 3mm;
+      color: #111;
+      display: flex;
+      flex-direction: column;
+      gap: 2mm;
+    }
+
+    .rows-2 .official-footer {
+      padding-top: 1.5mm;
+      gap: 1.2mm;
+    }
+
+    .commission-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5mm;
+      font-size: calc(7.8pt * var(--sub-scale));
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+
+    .rows-2 .commission-row {
+      font-size: calc(6.8pt * var(--sub-scale));
+    }
+
+    .official-seal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 5.2mm;
+      height: 5.2mm;
+      border: 0.45mm solid #d62828;
+      color: #d62828;
+      font-size: 4.5pt;
+      font-weight: 900;
+      line-height: 1.05;
+      text-align: center;
+      flex-shrink: 0;
+      font-family: 'Noto Serif KR', serif;
+    }
+
+    .rows-2 .official-seal {
+      width: 4.4mm;
+      height: 4.4mm;
+      font-size: 4pt;
+    }
+
+    .manager-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1.5mm;
+      font-size: calc(7pt * var(--sub-scale));
+      font-weight: 700;
+      padding-right: 1mm;
+    }
+
+    .rows-2 .manager-row {
+      font-size: calc(6.2pt * var(--sub-scale));
+    }
+
+    .manager-stamp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 4.2mm;
+      height: 4.2mm;
+      border: 0.25mm solid #444;
+      border-radius: 50%;
+      font-size: 4.5pt;
+      color: #444;
+    }
+
+    /* 1명 찬반 투표 스타일 */
     .approval-title {
       border: 0.3mm solid #222;
       border-bottom: 0;
@@ -692,12 +886,393 @@
       color: #637488;
     }
 
+    /* ==========================================
+       디지털 투표 & 공유 & 실시간 집계 모달/오버레이
+       ========================================== */
+    .digital-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(4px);
+      overflow-y: auto;
+      padding: 24px 16px;
+    }
+
+    .digital-overlay.open {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .digital-card {
+      background: #fff;
+      width: 100%;
+      max-width: 960px;
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      margin: auto;
+    }
+
+    .digital-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 24px;
+      background: #174a74;
+      color: #fff;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .digital-header h2 {
+      margin: 0;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .digital-tabs {
+      display: flex;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.14);
+      padding: 4px;
+      border-radius: 10px;
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.85);
+      padding: 8px 14px;
+      border-radius: 7px;
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .tab-btn.active {
+      background: #fff;
+      color: #174a74;
+    }
+
+    .close-modal-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      padding: 7px 13px;
+      font-size: 13px;
+    }
+
+    .close-modal-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .digital-body {
+      padding: 24px;
+    }
+
+    .booth-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    /* 인터랙티브 디지털 투표용지 */
+    .interactive-ballot-box {
+      background: #e2e8f0;
+      padding: 20px;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .interactive-ballot-box .ballot {
+      width: 100%;
+      max-width: 320px;
+      height: auto;
+      min-height: 430px;
+      background: #fff;
+      box-shadow: 0 8px 25px rgba(15, 23, 42, 0.15);
+      border-radius: 3px;
+      padding: 24px 16px 18px;
+      user-select: none;
+    }
+
+    .interactive-ballot-box .ballot tr.votable-row,
+    .interactive-ballot-box .ballot td.votable-cell {
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+
+    .interactive-ballot-box .ballot tr.votable-row:hover td,
+    .interactive-ballot-box .ballot td.votable-cell:hover {
+      background: #fff5f5;
+    }
+
+    .interactive-ballot-box .ballot tr.votable-row.selected td,
+    .interactive-ballot-box .ballot td.votable-cell.selected {
+      background: #fef2f2;
+    }
+
+    /* 첨부 2번 그림: 실제 기표 도장 (점 복 卜 원형 빨간 도장) 애니메이션 */
+    .stamp-svg {
+      width: 34px;
+      height: 34px;
+      animation: stampPop 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+      filter: drop-shadow(0 1px 1px rgba(214, 40, 40, 0.25));
+    }
+
+    @keyframes stampPop {
+      0% {
+        transform: scale(1.75) rotate(-12deg);
+        opacity: 0.2;
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 0.94;
+      }
+    }
+
+    .booth-side {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .status-banner {
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #15803d;
+      background: #dcfce7;
+      padding: 5px 11px;
+      border-radius: 999px;
+    }
+
+    .status-badge.expired {
+      color: #b91c1c;
+      background: #fee2e2;
+    }
+
+    .timer-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .vote-action-box {
+      padding: 18px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .vote-action-box h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .selected-notice {
+      font-size: 14px;
+      font-weight: 700;
+      color: #b91c1c;
+      margin: 10px 0 14px;
+      min-height: 22px;
+    }
+
+    .submit-vote-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 14px;
+      font-size: 16px;
+      background: #d62828;
+      border-color: #d62828;
+      color: #fff;
+    }
+
+    .submit-vote-btn:hover {
+      background: #b91c1c;
+    }
+
+    .submit-vote-btn:disabled {
+      background: #cbd5e1;
+      border-color: #cbd5e1;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
+    /* 공유하기 박스 */
+    .share-box {
+      padding: 18px;
+      border: 1px solid #dbeafe;
+      background: #f0f7ff;
+      border-radius: 12px;
+    }
+
+    .share-box h3 {
+      margin: 0 0 6px;
+      font-size: 15px;
+      color: #1e3a8a;
+    }
+
+    .share-url-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .share-url-row input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #93c5fd;
+      border-radius: 8px;
+      font-size: 13px;
+      background: #fff;
+      color: #1e293b;
+    }
+
+    .qr-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed #bfdbfe;
+    }
+
+    .qr-wrap img {
+      width: 96px;
+      height: 96px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      padding: 4px;
+    }
+
+    /* 집계(개표) 페이지 스타일 */
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .total-votes-card {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .total-votes-card span {
+      color: #d62828;
+      font-size: 24px;
+    }
+
+    .result-bars {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .result-row {
+      padding: 14px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .result-row.leader {
+      border-color: #f87171;
+      background: #fffafa;
+    }
+
+    .result-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .leader-badge {
+      background: #d62828;
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      margin-left: 6px;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 12px;
+      background: #f1f5f9;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: #174a74;
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+
+    .result-row.leader .bar-fill {
+      background: #d62828;
+    }
+
+    /* 공유 링크 전용 참여자 모드일 때 편집 화면 숨김 */
+    body.voter-only-mode .app {
+      display: none;
+    }
+
+    body.voter-only-mode .digital-overlay {
+      position: static;
+      display: flex;
+      min-height: 100vh;
+      background: #f1f5f9;
+      backdrop-filter: none;
+    }
+
+    body.voter-only-mode .close-modal-btn {
+      display: none;
+    }
+
     @media (max-width: 900px) {
       .top {
         align-items: flex-start;
         flex-direction: column;
       }
-      .layout {
+      .layout,
+      .booth-layout {
         grid-template-columns: 1fr;
       }
       .app {
@@ -738,7 +1313,8 @@
       .top,
       .panel,
       .caption,
-      .support {
+      .support,
+      .digital-overlay {
         display: none !important;
       }
       .sheet {
@@ -762,10 +1338,11 @@
     <header class="top">
       <div>
         <h1>투표용지 만들기</h1>
-        <p>입력하면 A4 인쇄용 투표용지가 바로 완성됩니다.</p>
+        <p>A4 인쇄용 투표용지 제작부터 24시간 실시간 디지털 투표·집계까지 한 번에 지원합니다.</p>
       </div>
       <div class="buttons">
         <button type="button" class="style-btn" id="toggle-style-btn">✨ 글자 꾸미기</button>
+        <button type="button" class="vote-btn" id="open-digital-btn">🗳️ 투표해보기 · 24시간 공유</button>
         <button type="button" id="reset">초기화</button>
         <button type="button" class="primary" id="print">인쇄 / PDF 저장</button>
       </div>
@@ -784,7 +1361,7 @@
             <label>빠른 테마 프리셋</label>
             <div class="preset-grid" id="preset-grid">
               <button type="button" class="preset-btn" data-preset="default">기본 고딕</button>
-              <button type="button" class="preset-btn" data-preset="official">공식 선거 명조</button>
+              <button type="button" class="preset-btn" data-preset="official">🇰🇷 선관위 공식 명조</button>
               <button type="button" class="preset-btn" data-preset="friendly">학교·인기투표</button>
               <button type="button" class="preset-btn" data-preset="large">큰 글씨 배려</button>
             </div>
@@ -870,11 +1447,41 @@
           <div class="layout-chips" id="layout-chips">
             <button type="button" class="chip-btn" data-layout="auto">자동 추천<br><small>1~4명 6장 / 5~8명 3장</small></button>
             <button type="button" class="chip-btn" data-layout="3x2">3×2 배열 (6장)<br><small>표준 폭 70mm</small></button>
-            <button type="button" class="chip-btn" data-layout="2x2">2×2 배열 (4장)<br><small>넓은 폭 105mm</small></button>
+            <button type="button" class="chip-btn" data-layout="2x2">2×2 배열 (4장)<br><small>넓은 폭 105mm (실제 규격)</small></button>
             <button type="button" class="chip-btn" data-layout="3x1">3×1 배열 (3장)<br><small>표준 폭 70mm · 긴 세로</small></button>
             <button type="button" class="chip-btn" data-layout="2x1">2×1 배열 (2장)<br><small>넓은 폭 105mm · 긴 세로</small></button>
           </div>
-          <p class="note">4명 후보도 3×2(6장) 배열을 지원하며, 글자가 길거나 크게 뽑고 싶을 때는 넓은 폭(2열, 105mm)으로 바꿀 수 있습니다.</p>
+        </div>
+
+        <!-- 대한민국 실제 선거 투표용지 양식 옵션 -->
+        <div class="field">
+          <label class="toggle-row highlight" for="nec-preset-toggle">
+            <span>🇰🇷 대한민국 실제 투표용지 양식 <small style="color:#1e40af;font-weight:600">(선관위형)</small></span>
+            <input type="checkbox" id="nec-preset-toggle">
+          </label>
+          <div class="sub-options">
+            <label class="sub-check" for="row-gap-toggle">
+              <span>① 후보자 칸 사이 여백 두기 (무효표 방지선)</span>
+              <input type="checkbox" id="row-gap-toggle">
+            </label>
+            <label class="sub-check" for="hide-header-toggle">
+              <span>② 표 머리글(기호·후보 이름·기표) 숨기기</span>
+              <input type="checkbox" id="hide-header-toggle">
+            </label>
+            <label class="sub-check" for="spaced-name-toggle">
+              <span>③ 성명·정당 글자 균등 배분 (설 악 산 스타일)</span>
+              <input type="checkbox" id="spaced-name-toggle">
+            </label>
+            <label class="sub-check" for="official-seal-toggle">
+              <span>④ 하단 선관위 청인(직인) 및 투표관리관 날인란</span>
+              <input type="checkbox" id="official-seal-toggle">
+            </label>
+            <div class="commission-input-wrap" id="commission-input-wrap" style="display:none">
+              <label for="commission-name">하단 선거관리위원회 명칭</label>
+              <input type="text" id="commission-name" maxlength="30" placeholder="예: 중앙선거관리위원회위원장">
+            </div>
+          </div>
+          <p class="note">실제 투표용지처럼 후보자 칸 사이에 여백을 띄워 기표 논란을 방지하고, 선관위 청인과 서식을 그대로 재현합니다.</p>
         </div>
 
         <div class="field">
@@ -912,14 +1519,120 @@
     </div>
   </main>
 
+  <!-- 디지털 투표해보기 & 24시간 공유 & 실시간 집계 모달 -->
+  <div class="digital-overlay" id="digital-overlay" role="dialog" aria-modal="true">
+    <div class="digital-card">
+      <div class="digital-header">
+        <h2 id="digital-modal-title">🗳️ 디지털 투표소 & 실시간 집계</h2>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="digital-tabs">
+            <button type="button" class="tab-btn active" id="tab-vote-btn">기표하기 (투표용지)</button>
+            <button type="button" class="tab-btn" id="tab-result-btn">📊 실시간 집계 페이지</button>
+          </div>
+          <button type="button" class="close-modal-btn" id="close-digital-btn">닫기 ✕</button>
+        </div>
+      </div>
+
+      <div class="digital-body">
+        <!-- 탭 1: 디지털 기표하기 & 공유하기 -->
+        <div id="view-vote">
+          <div class="booth-layout">
+            <div class="interactive-ballot-box">
+              <div id="interactive-ballot-target" style="width:100%;display:flex;justify-content:center"></div>
+              <p class="note" style="text-align:center;margin-top:12px;color:#334155;font-weight:700">
+                👆 위 투표용지에서 원하는 후보(또는 찬성/반대) 칸을 클릭해 기표 도장을 찍으세요!
+              </p>
+            </div>
+
+            <div class="booth-side">
+              <div class="status-banner">
+                <span class="status-badge" id="poll-status-badge">🟢 투표 진행 중</span>
+                <span class="timer-text" id="poll-timer-text">24시간 공유 대기 중</span>
+              </div>
+
+              <div class="vote-action-box">
+                <h3>1. 내 기표 확인 및 제출</h3>
+                <p class="note" style="margin-top:2px">
+                  실제 대한민국 선거 기표용구(점 복 `卜` 원형 도장)가 찍힙니다. 후보자 칸 사이의 여백 덕분에 어느 후보에게 기표했는지 명확히 구분됩니다.
+                </p>
+                <div class="selected-notice" id="selected-candidate-notice">아직 기표하지 않았습니다. 투표용지 칸을 눌러주세요.</div>
+                <button type="button" class="submit-vote-btn" id="submit-vote-btn" disabled>🗳️ 투표함에 넣기 (투표 제출)</button>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+                  <label class="sub-check" style="gap:6px;font-size:12px;color:#64748b">
+                    <input type="checkbox" id="kiosk-mode-toggle">
+                    <span>한 기기에서 여러 명 연속 투표 허용 (현장 키오스크 모드)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="share-box" id="share-box">
+                <h3>2. 🔗 하루(24시간) 동안 온라인 투표 공유하기</h3>
+                <p class="note" style="margin-top:2px;color:#334155">
+                  공유 링크나 QR코드를 보내면 다른 사람들도 스마트폰·PC에서 이 투표용지에 기표할 수 있고, <b>실시간 집계 페이지</b>에서 자동으로 합산됩니다. (생성 후 24시간 동안 유효)
+                </p>
+                <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+                  <button type="button" class="primary" id="create-share-btn" style="padding:9px 14px;font-size:13px">🚀 새 24시간 공유 링크 생성/갱신</button>
+                  <button type="button" id="go-results-btn" style="padding:9px 14px;font-size:13px">📊 실시간 집계 보기</button>
+                </div>
+                <div id="share-link-area" style="display:none">
+                  <div class="share-url-row">
+                    <input type="text" id="share-url-input" readonly aria-label="공유 링크">
+                    <button type="button" class="primary" id="copy-share-btn">복사</button>
+                  </div>
+                  <div class="qr-wrap">
+                    <img id="share-qr-img" alt="투표 공유 QR코드">
+                    <div class="note" style="margin:0;color:#1e3a8a">
+                      <b>QR코드 스캔으로 바로 투표!</b><br>
+                      스마트폰 카메라로 스캔하면 이 투표용지가 바로 열립니다.<br>
+                      <span id="share-expire-label" style="color:#b91c1c;font-weight:700"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 탭 2: 실시간 집계(개표) 페이지 -->
+        <div id="view-results" style="display:none">
+          <div class="results-header">
+            <div>
+              <div class="total-votes-card">총 투표수: <span id="total-votes-num">0</span>표</div>
+              <p class="note" id="results-subtitle" style="margin-top:3px">실시간으로 투표 결과가 자동 반영됩니다.</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button type="button" id="refresh-results-btn">🔄 집계 새로고침</button>
+              <button type="button" class="primary" id="back-to-booth-btn">🗳️ 기표 화면으로</button>
+            </div>
+          </div>
+
+          <div class="result-bars" id="result-bars"></div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:10px">
+            <span class="note" style="margin:0">※ 공유 링크를 통한 투표는 생성 시점부터 24시간 동안 집계됩니다.</span>
+            <button type="button" id="reset-votes-btn" style="font-size:12px;padding:7px 12px;color:#b91c1c;border-color:#fca5a5">새 투표함으로 집계 초기화</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const key = 'ballot-editor-party-v1';
+    const voterKey = 'ballot-voter-device-id';
     const defaults = ['첫번째곰돌이', '양양이', '불리', '브릭타', '하식이', '짜구짜꾸', '엄마토끼', '해오름토끼'];
+
+    // 기기 고유 voterId 보장 (중복 투표 방지용)
+    let deviceVoterId = localStorage.getItem(voterKey);
+    if (!deviceVoterId) {
+      deviceVoterId = 'v_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+      try { localStorage.setItem(voterKey, deviceVoterId); } catch {}
+    }
 
     const FONTS = [
       { id: 'malgun', label: '맑은 고딕 (시스템 기본)', css: "'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif" },
+      { id: 'noto-serif', label: '본명조 (Noto Serif KR · 선관위 투표용지 서체)', css: "'Noto Serif KR', serif" },
       { id: 'noto-sans', label: '본고딕 (Noto Sans KR)', css: "'Noto Sans KR', sans-serif" },
-      { id: 'noto-serif', label: '본명조 (Noto Serif KR · 선거용지 느낌)', css: "'Noto Serif KR', serif" },
       { id: 'nanum-gothic', label: '나눔고딕 (Nanum Gothic)', css: "'Nanum Gothic', sans-serif" },
       { id: 'nanum-myeongjo', label: '나눔명조 (Nanum Myeongjo)', css: "'Nanum Myeongjo', serif" },
       { id: 'ibm-plex', label: 'IBM Plex Sans KR (현대적 고딕)', css: "'IBM Plex Sans KR', sans-serif" },
@@ -940,6 +1653,14 @@
       wrapMode: 'auto'
     };
 
+    const DEFAULT_OFFICIAL = {
+      rowGap: true,
+      hideHeader: false,
+      spacedName: false,
+      officialSeal: false,
+      commissionName: '중앙선거관리위원회위원장'
+    };
+
     const segmenter = typeof Intl !== 'undefined' && Intl.Segmenter
       ? new Intl.Segmenter('ko', { granularity: 'grapheme' })
       : null;
@@ -950,37 +1671,93 @@
 
     const clean = s => chars(String(s || '').replace(/[\r\n\t]/g, '')).slice(0, 10).join('');
 
+    function randomPollId() {
+      return 'vp' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+    }
+
     const defaultState = () => ({
       title: '인형 인기투표',
-      quantity: 8,
+      quantity: 4,
       party: false,
       layoutMode: 'auto',
       names: [...defaults],
-      parties: Array(8).fill(''),
-      style: { ...DEFAULT_STYLE }
+      parties: ['무소속', '푸른당', '해오름당', '무소속', '', '', '', ''],
+      style: { ...DEFAULT_STYLE },
+      official: { ...DEFAULT_OFFICIAL },
+      pollId: randomPollId(),
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000
     });
 
     let data = defaultState();
+    let isSharedVoterMode = false;
 
-    try {
-      const saved = JSON.parse(localStorage.getItem(key) || 'null');
-      if (saved && typeof saved === 'object') {
-        const base = defaultState();
-        data = {
-          ...base,
-          title: typeof saved.title === 'string' ? saved.title.slice(0, 100) : base.title,
-          quantity: Math.min(8, Math.max(1, Number(saved.quantity) || 8)),
-          party: !!saved.party,
-          layoutMode: ['auto', '3x2', '2x2', '3x1', '2x1'].includes(saved.layoutMode) ? saved.layoutMode : 'auto',
-          names: [...defaults].map((v, i) => clean(saved.names?.[i] ?? v)),
-          parties: Array.from({ length: 8 }, (_, i) => clean(saved.parties?.[i] ?? '')),
-          style: {
-            ...DEFAULT_STYLE,
-            ...(saved.style && typeof saved.style === 'object' ? saved.style : {})
-          }
-        };
-      }
-    } catch {}
+    // URL 공유 파라미터(?v=...) 파싱 또는 localStorage 복원
+    function encodePollData(obj) {
+      const minimal = {
+        t: obj.title,
+        q: obj.quantity,
+        p: obj.party ? 1 : 0,
+        l: obj.layoutMode,
+        n: obj.names.slice(0, obj.quantity),
+        pa: obj.party ? obj.parties.slice(0, obj.quantity) : [],
+        s: obj.style,
+        o: obj.official,
+        id: obj.pollId,
+        ex: obj.expiresAt
+      };
+      const json = JSON.stringify(minimal);
+      return btoa(encodeURIComponent(json));
+    }
+
+    function decodePollData(encoded) {
+      const json = decodeURIComponent(atob(encoded));
+      const m = JSON.parse(json);
+      const base = defaultState();
+      return {
+        ...base,
+        title: typeof m.t === 'string' ? m.t.slice(0, 100) : base.title,
+        quantity: Math.min(8, Math.max(1, Number(m.q) || 4)),
+        party: !!m.p,
+        layoutMode: m.l || 'auto',
+        names: Array.from({ length: 8 }, (_, i) => clean(m.n?.[i] ?? defaults[i])),
+        parties: Array.from({ length: 8 }, (_, i) => clean(m.pa?.[i] ?? '')),
+        style: { ...DEFAULT_STYLE, ...(m.s || {}) },
+        official: { ...DEFAULT_OFFICIAL, ...(m.o || {}) },
+        pollId: typeof m.id === 'string' && m.id ? m.id : randomPollId(),
+        expiresAt: Number(m.ex) || (Date.now() + 24 * 60 * 60 * 1000)
+      };
+    }
+
+    const urlParams = new URLSearchParams(location.search);
+    const sharedParam = urlParams.get('v');
+
+    if (sharedParam) {
+      try {
+        data = decodePollData(sharedParam);
+        isSharedVoterMode = true;
+        document.body.classList.add('voter-only-mode');
+      } catch {}
+    } else {
+      try {
+        const saved = JSON.parse(localStorage.getItem(key) || 'null');
+        if (saved && typeof saved === 'object') {
+          const base = defaultState();
+          data = {
+            ...base,
+            title: typeof saved.title === 'string' ? saved.title.slice(0, 100) : base.title,
+            quantity: Math.min(8, Math.max(1, Number(saved.quantity) || 4)),
+            party: !!saved.party,
+            layoutMode: ['auto', '3x2', '2x2', '3x1', '2x1'].includes(saved.layoutMode) ? saved.layoutMode : 'auto',
+            names: [...defaults].map((v, i) => clean(saved.names?.[i] ?? v)),
+            parties: Array.from({ length: 8 }, (_, i) => clean(saved.parties?.[i] ?? base.parties[i] ?? '')),
+            style: { ...DEFAULT_STYLE, ...(saved.style || {}) },
+            official: { ...DEFAULT_OFFICIAL, ...(saved.official || {}) },
+            pollId: saved.pollId || randomPollId(),
+            expiresAt: Number(saved.expiresAt) || (Date.now() + 24 * 60 * 60 * 1000)
+          };
+        }
+      } catch {}
+    }
 
     const el = id => document.getElementById(id);
 
@@ -1004,6 +1781,7 @@
     }
 
     function save() {
+      if (isSharedVoterMode) return;
       try {
         localStorage.setItem(key, JSON.stringify(data));
       } catch {}
@@ -1019,15 +1797,21 @@
       }[ch]));
     }
 
-    function td(t, cls) {
-      return `<td${cls ? ` class="${cls}"` : ''}>${escapeHTML(t)}</td>`;
+    // 첨부 2번 그림과 동일한 대한민국 선거 기표도장(점 복 卜) SVG 생성
+    function stampSVG() {
+      return `<svg class="stamp-svg" viewBox="0 0 40 40" aria-label="기표 도장">
+        <g transform="rotate(-34 20 20)" fill="none" stroke="#d62828" stroke-linecap="round">
+          <circle cx="20" cy="20" r="15.5" stroke-width="2.9"/>
+          <line x1="20" y1="4.5" x2="20" y2="35.5" stroke-width="2.8"/>
+          <line x1="20" y1="19" x2="34.5" y2="25.5" stroke-width="2.8"/>
+        </g>
+      </svg>`;
     }
 
     // 현재 후보 수와 선택된 모드에 따른 실제 그리드 계산 (4명까지 기본 3x2 6장 지원)
     function resolveGrid() {
       const q = data.quantity;
       let mode = data.layoutMode || 'auto';
-      // 5명 이상일 때는 2행(148.5mm)에 들어가기엔 칸이 좁으므로 1행(3x1 또는 2x1)으로 자동 전환
       if (q > 4 && (mode === '3x2' || mode === '2x2')) {
         mode = mode === '2x2' ? '2x1' : '3x1';
       }
@@ -1038,13 +1822,17 @@
       return { mode, cols, rows, copies: cols * rows };
     }
 
-    // 줄바꿈 처리 (3열은 기본 5자 줄바꿈, 2열 넓은 폭은 기본 줄바꿈 없음 또는 설정에 따름)
+    // 성명/정당 포맷팅 (선관위 균등 자간 '설 악 산' 및 줄바꿈 처리)
     function formatText(s, cols) {
       const cleaned = clean(s);
+      const c = chars(cleaned);
+      if (data.official?.spacedName && c.length >= 2 && c.length <= 4 && !cleaned.includes(' ')) {
+        if (c.length === 2) return `${c[0]}   ${c[1]}`;
+        return c.join(' ');
+      }
       const wrapMode = data.style?.wrapMode || 'auto';
       const shouldWrap5 = wrapMode === '5' || (wrapMode === 'auto' && cols === 3);
       if (!shouldWrap5) return cleaned;
-      const c = chars(cleaned);
       return c.slice(0, 5).join('') + (c.length > 5 ? '\n' + c.slice(5).join('') : '');
     }
 
@@ -1062,9 +1850,11 @@
       root.setProperty('--name-weight', s.nameWeight || '700');
     }
 
-    function ballot(cols) {
+    // 투표용지 HTML 생성 (interactive=true일 때는 클릭 기표 가능)
+    function ballot(cols, interactive = false, selectedChoice = null) {
       const q = data.quantity;
       const isParty = data.party;
+      const off = data.official || DEFAULT_OFFICIAL;
       const titleText = data.title.trim() || '투표 제목';
       const titles = `<div class="ballot-title">${escapeHTML(titleText)}</div><p class="ballot-sub">투 표 용 지</p>`;
       let body = '';
@@ -1074,27 +1864,60 @@
           ? `<div class="approval-party">${escapeHTML(formatText(data.parties[0].trim(), cols))}</div>`
           : '';
         const candName = data.names[0]?.trim() || '후보 이름';
+        const yesStamp = interactive && selectedChoice === 0 ? stampSVG() : '';
+        const noStamp = interactive && selectedChoice === 1 ? stampSVG() : '';
         body = `<div class="approval-title">${partyText}${escapeHTML(formatText(candName, cols))}</div>` +
           `<table class="approval-table"><thead><tr><th>찬성</th><th>반대</th></tr></thead>` +
-          `<tbody><tr><td><span class="mark"></span></td><td><span class="mark"></span></td></tr></tbody></table>`;
+          `<tbody><tr>` +
+          `<td class="${interactive ? 'votable-cell' : ''} ${selectedChoice === 0 ? 'selected' : ''}" data-choice="0"><span class="mark">${yesStamp}</span></td>` +
+          `<td class="${interactive ? 'votable-cell' : ''} ${selectedChoice === 1 ? 'selected' : ''}" data-choice="1"><span class="mark">${noStamp}</span></td>` +
+          `</tr></tbody></table>`;
       } else {
-        const w = isParty ? ['10%', '29%', '43%', '18%'] : ['13%', '65%', '22%'];
+        const w = isParty ? ['11%', '29%', '41%', '19%'] : ['14%', '64%', '22%'];
+        const thead = off.hideHeader
+          ? ''
+          : `<thead><tr><th>기호</th>${isParty ? '<th>정당명</th>' : ''}<th>후보 이름</th><th>기표</th></tr></thead>`;
         body = `<table><colgroup>${w.map(v => `<col style="width:${v}">`).join('')}</colgroup>` +
-          `<thead><tr><th>기호</th>${isParty ? '<th>정당명</th>' : ''}<th>후보 이름</th><th>기표</th></tr></thead>` +
+          thead +
           `<tbody>${Array.from({ length: q }, (_, i) => {
             const pName = data.parties[i]?.trim() ? formatText(data.parties[i].trim(), cols) : '';
             const cName = formatText(data.names[i]?.trim() || '후보 이름', cols);
-            return `<tr>${td(i + 1, 'number-cell')}${isParty ? td(pName, 'party-name') : ''}${td(cName, 'name')}<td><span class="mark"></span></td></tr>`;
+            const isSel = interactive && selectedChoice === i;
+            const rowCls = interactive ? ` class="votable-row${isSel ? ' selected' : ''}" data-choice="${i}"` : '';
+            return `<tr${rowCls}>` +
+              `<td class="number-cell">${i + 1}</td>` +
+              `${isParty ? `<td class="party-name">${escapeHTML(pName)}</td>` : ''}` +
+              `<td class="name">${escapeHTML(cName)}</td>` +
+              `<td class="stamp-cell"><span class="mark">${isSel ? stampSVG() : ''}</span></td>` +
+              `</tr>`;
           }).join('')}</tbody></table>`;
       }
 
-      return `<article class="ballot ${isParty ? 'party-enabled' : ''}">${titles}${body}<div class="ballot-footer">${q === 1 ? '찬성 또는 반대에 기표해 주세요.' : '한 명의 후보에게 기표해 주세요.'}</div></article>`;
+      let footer = '';
+      if (off.officialSeal) {
+        const commName = (off.commissionName || '중앙선거관리위원회위원장').trim();
+        footer = `<div class="official-footer">` +
+          `<div class="commission-row"><span>${escapeHTML(commName)}</span><span class="official-seal">선관위<br>청인</span></div>` +
+          `<div class="manager-row"><span>투표관리관</span><span class="manager-stamp">인</span></div>` +
+          `</div>`;
+      } else {
+        footer = `<div class="ballot-footer">${q === 1 ? '찬성 또는 반대에 기표해 주세요.' : '한 명의 후보에게 기표해 주세요.'}</div>`;
+      }
+
+      const classes = [
+        'ballot',
+        isParty ? 'party-enabled' : '',
+        off.rowGap ? 'row-gap-on' : ''
+      ].filter(Boolean).join(' ');
+
+      return `<article class="${classes}">${titles}${body}${footer}</article>`;
     }
 
     function fit() {
       const preview = el('preview-scroll');
       const wrapEl = el('sheet-wrapper');
       const sheet = el('sheet');
+      if (!preview || !wrapEl || !sheet) return;
       const sheetW = 210 * 96 / 25.4;
       const sheetH = 297 * 96 / 25.4;
       const availableW = Math.max(200, preview.clientWidth - 40);
@@ -1117,6 +1940,15 @@
       el('title-weight').value = s.titleWeight;
       el('name-weight').value = s.nameWeight;
       el('wrap-mode').value = s.wrapMode;
+
+      const off = data.official || DEFAULT_OFFICIAL;
+      el('row-gap-toggle').checked = !!off.rowGap;
+      el('hide-header-toggle').checked = !!off.hideHeader;
+      el('spaced-name-toggle').checked = !!off.spacedName;
+      el('official-seal-toggle').checked = !!off.officialSeal;
+      el('commission-name').value = off.commissionName || '중앙선거관리위원회위원장';
+      el('commission-input-wrap').style.display = off.officialSeal ? 'block' : 'none';
+      el('nec-preset-toggle').checked = !!(off.rowGap && off.hideHeader && off.spacedName && off.officialSeal);
     }
 
     function updateLayoutChipsUI() {
@@ -1169,7 +2001,7 @@
               <div class="count nm-count" aria-label="후보 이름 글자 수"></div>
             </div>
             <div class="input-with-count party-wrap">
-              <input class="party" aria-label="${i + 1}번 정당 이름" maxlength="22" placeholder="정당 이름 (선택)">
+              <input class="party" aria-label="${i + 1}번 정당 이름" maxlength="22" placeholder="정당 이름 (예: 무소속)">
               <div class="count party-count" aria-label="정당 이름 글자 수"></div>
             </div>
           </div>
@@ -1224,9 +2056,12 @@
       sheet.className = `sheet grid-${mode} cols-${cols} rows-${rows} q-${data.quantity}`;
       sheet.innerHTML = ballot(cols).repeat(copies);
       fit();
+      if (el('digital-overlay').classList.contains('open')) {
+        renderInteractiveBallot();
+      }
     }
 
-    // 이벤트 바인딩
+    // 기본 편집 이벤트 바인딩
     el('title').addEventListener('input', e => {
       data.title = e.target.value;
       refresh();
@@ -1242,11 +2077,41 @@
       render();
     });
 
-    // 용지 배치 버튼 클릭
     el('layout-chips').addEventListener('click', e => {
       const btn = e.target.closest('.chip-btn');
       if (!btn || btn.disabled) return;
       data.layoutMode = btn.dataset.layout;
+      refresh();
+    });
+
+    // 선관위 공식 양식 토글 이벤트
+    el('nec-preset-toggle').addEventListener('change', e => {
+      const on = e.target.checked;
+      data.official.rowGap = on;
+      data.official.hideHeader = on;
+      data.official.spacedName = on;
+      data.official.officialSeal = on;
+      if (on) {
+        data.style.titleFont = 'noto-serif';
+        data.style.bodyFont = 'noto-serif';
+      }
+      syncStyleUI();
+      refresh();
+    });
+
+    ['row-gap-toggle', 'hide-header-toggle', 'spaced-name-toggle', 'official-seal-toggle'].forEach(id => {
+      el(id).addEventListener('change', () => {
+        data.official.rowGap = el('row-gap-toggle').checked;
+        data.official.hideHeader = el('hide-header-toggle').checked;
+        data.official.spacedName = el('spaced-name-toggle').checked;
+        data.official.officialSeal = el('official-seal-toggle').checked;
+        syncStyleUI();
+        refresh();
+      });
+    });
+
+    el('commission-name').addEventListener('input', e => {
+      data.official.commissionName = e.target.value;
       refresh();
     });
 
@@ -1260,7 +2125,6 @@
       }
     });
 
-    // 스타일 컨트롤 이벤트
     const bindStyleChange = (id, prop, isNum = false) => {
       el(id).addEventListener('input', e => {
         data.style[prop] = isNum ? Number(e.target.value) : e.target.value;
@@ -1279,7 +2143,6 @@
     bindStyleChange('name-weight', 'nameWeight');
     bindStyleChange('wrap-mode', 'wrapMode');
 
-    // 빠른 테마 프리셋
     const PRESETS = {
       default: { ...DEFAULT_STYLE },
       official: {
@@ -1320,6 +2183,12 @@
       const preset = PRESETS[btn.dataset.preset];
       if (!preset) return;
       data.style = { ...preset };
+      if (btn.dataset.preset === 'official') {
+        data.official.rowGap = true;
+        data.official.hideHeader = true;
+        data.official.spacedName = true;
+        data.official.officialSeal = true;
+      }
       document.querySelectorAll('#preset-grid .preset-btn').forEach(b => {
         b.classList.toggle('active', b === btn);
       });
@@ -1335,7 +2204,7 @@
     });
 
     el('reset').addEventListener('click', () => {
-      if (confirm('모든 입력과 글자 꾸미기 설정을 초기화할까요?')) {
+      if (confirm('모든 입력과 양식 설정을 초기화할까요?')) {
         data = defaultState();
         render();
       }
@@ -1352,8 +2221,349 @@
       window.print();
     });
 
+    /* =========================================================
+       디지털 투표해보기 & 24시간 공유하기 & 실시간 집계 시스템
+       ========================================================= */
+    let currentChoice = null;
+    let voteCounts = [];
+    let votedRegistry = new Set();
+    let sseConnection = null;
+    let timerInterval = null;
+
+    function getTopicName() {
+      return `votepdf_kr_${data.pollId}`;
+    }
+
+    function getLocalVotedKey() {
+      return `voted_${data.pollId}`;
+    }
+
+    function isPollExpired() {
+      return Date.now() > (Number(data.expiresAt) || 0);
+    }
+
+    function formatRemainingTime() {
+      const diff = (Number(data.expiresAt) || 0) - Date.now();
+      if (diff <= 0) return '투표 마감 (24시간 경과)';
+      const h = Math.floor(diff / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((diff % (1000 * 60)) / 1000);
+      return `남은 투표 시간: ${h}시간 ${String(m).padStart(2, '0')}분 ${String(s).padStart(2, '0')}초`;
+    }
+
+    function updateTimerUI() {
+      const expired = isPollExpired();
+      const badge = el('poll-status-badge');
+      const timerTxt = el('poll-timer-text');
+      if (expired) {
+        badge.textContent = '🔴 투표 마감됨 (24시간 종료)';
+        badge.classList.add('expired');
+        timerTxt.textContent = '유효기간 24시간이 만료되었습니다.';
+        el('submit-vote-btn').disabled = true;
+      } else {
+        badge.textContent = '🟢 실시간 투표 진행 중';
+        badge.classList.remove('expired');
+        timerTxt.textContent = formatRemainingTime();
+      }
+    }
+
+    function renderInteractiveBallot() {
+      const container = el('interactive-ballot-target');
+      container.innerHTML = ballot(2, true, currentChoice);
+
+      const notice = el('selected-candidate-notice');
+      const submitBtn = el('submit-vote-btn');
+      const alreadyVoted = !el('kiosk-mode-toggle').checked && localStorage.getItem(getLocalVotedKey()) === '1';
+
+      if (alreadyVoted) {
+        notice.style.color = '#15803d';
+        notice.textContent = '✅ 이미 이 투표에 참여하셨습니다. (집계 페이지에서 결과를 확인하세요)';
+        submitBtn.disabled = true;
+      } else if (isPollExpired()) {
+        notice.style.color = '#b91c1c';
+        notice.textContent = '⏰ 투표 기간(24시간)이 종료되었습니다.';
+        submitBtn.disabled = true;
+      } else if (currentChoice === null) {
+        notice.style.color = '#64748b';
+        notice.textContent = '아직 기표하지 않았습니다. 투표용지 칸을 눌러 도장을 찍어주세요.';
+        submitBtn.disabled = true;
+      } else {
+        notice.style.color = '#d62828';
+        if (data.quantity === 1) {
+          notice.textContent = `👉 [${currentChoice === 0 ? '찬성' : '반대'}] 칸에 기표 도장을 찍었습니다.`;
+        } else {
+          const cName = data.names[currentChoice]?.trim() || `${currentChoice + 1}번 후보`;
+          notice.textContent = `👉 기호 ${currentChoice + 1}번 [${cName}] 후보에게 기표 도장을 찍었습니다.`;
+        }
+        submitBtn.disabled = false;
+      }
+
+      container.querySelectorAll('[data-choice]').forEach(elem => {
+        elem.addEventListener('click', () => {
+          if (isPollExpired()) return;
+          if (!el('kiosk-mode-toggle').checked && localStorage.getItem(getLocalVotedKey()) === '1') {
+            alert('이미 투표에 참여하셨습니다! 한 기기에서 여러 명이 이어서 투표하려면 아래 [현장 키오스크 모드]를 켜주세요.');
+            return;
+          }
+          currentChoice = Number(elem.dataset.choice);
+          renderInteractiveBallot();
+        });
+      });
+    }
+
+    function initVoteCounts() {
+      const slots = data.quantity === 1 ? 2 : data.quantity;
+      voteCounts = Array(slots).fill(0);
+      votedRegistry = new Set();
+    }
+
+    function processVoteMessage(rawMsg) {
+      try {
+        const parsed = JSON.parse(rawMsg);
+        if (parsed.type === 'reset') {
+          initVoteCounts();
+          return;
+        }
+        if (parsed.type === 'vote' && typeof parsed.choice === 'number') {
+          const slots = data.quantity === 1 ? 2 : data.quantity;
+          if (parsed.choice >= 0 && parsed.choice < slots) {
+            const vKey = parsed.voterId || ('anon_' + Math.random());
+            if (!votedRegistry.has(vKey)) {
+              votedRegistry.add(vKey);
+              voteCounts[parsed.choice] = (voteCounts[parsed.choice] || 0) + 1;
+            }
+          }
+        }
+      } catch {}
+    }
+
+    async function fetchAllVotes() {
+      initVoteCounts();
+      const topic = getTopicName();
+      try {
+        const res = await fetch(`https://ntfy.sh/${topic}/json?poll=1&since=all`);
+        if (res.ok) {
+          const text = await res.text();
+          const lines = text.split('\n').filter(Boolean);
+          for (const line of lines) {
+            try {
+              const eventObj = JSON.parse(line);
+              if (eventObj.event === 'message' && eventObj.message) {
+                processVoteMessage(eventObj.message);
+              }
+            } catch {}
+          }
+        }
+      } catch {}
+      renderResultsUI();
+    }
+
+    function connectLiveSSE() {
+      if (sseConnection) {
+        try { sseConnection.close(); } catch {}
+        sseConnection = null;
+      }
+      const topic = getTopicName();
+      try {
+        sseConnection = new EventSource(`https://ntfy.sh/${topic}/sse`);
+        sseConnection.onmessage = e => {
+          try {
+            const ev = JSON.parse(e.data);
+            if (ev.event === 'message' && ev.message) {
+              processVoteMessage(ev.message);
+              renderResultsUI();
+            }
+          } catch {}
+        };
+      } catch {}
+    }
+
+    function renderResultsUI() {
+      const slots = data.quantity === 1 ? 2 : data.quantity;
+      if (voteCounts.length !== slots) initVoteCounts();
+      const total = voteCounts.reduce((a, b) => a + b, 0);
+      const maxVote = Math.max(0, ...voteCounts);
+
+      el('total-votes-num').textContent = total;
+      el('results-subtitle').textContent = `${data.title.trim() || '투표'} · 실시간 개표 현황 (${formatRemainingTime()})`;
+
+      const barsEl = el('result-bars');
+      barsEl.innerHTML = '';
+
+      for (let i = 0; i < slots; i++) {
+        const count = voteCounts[i] || 0;
+        const pct = total > 0 ? Math.round((count / total) * 1000) / 10 : 0;
+        const isLeader = total > 0 && count === maxVote;
+
+        let label = '';
+        if (data.quantity === 1) {
+          label = i === 0 ? '⭕ 찬성' : '❌ 반대';
+        } else {
+          const pName = data.party && data.parties[i]?.trim() ? ` (${data.parties[i].trim()})` : '';
+          label = `기호 ${i + 1}번 · ${data.names[i]?.trim() || '후보'}${pName}`;
+        }
+
+        const row = document.createElement('div');
+        row.className = `result-row${isLeader ? ' leader' : ''}`;
+        row.innerHTML = `
+          <div class="result-row-top">
+            <span>${escapeHTML(label)}${isLeader ? '<span class="leader-badge">1위</span>' : ''}</span>
+            <span>${count}표 (${pct}%)</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${pct}%"></div>
+          </div>
+        `;
+        barsEl.appendChild(row);
+      }
+    }
+
+    // 투표 제출하기
+    el('submit-vote-btn').addEventListener('click', async () => {
+      if (currentChoice === null || isPollExpired()) return;
+      const isKiosk = el('kiosk-mode-toggle').checked;
+      if (!isKiosk && localStorage.getItem(getLocalVotedKey()) === '1') {
+        alert('이미 투표하셨습니다.');
+        return;
+      }
+
+      const submitBtn = el('submit-vote-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '전송 중...';
+
+      const voterToken = isKiosk
+        ? `${deviceVoterId}_kiosk_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
+        : deviceVoterId;
+
+      const payload = JSON.stringify({
+        type: 'vote',
+        choice: currentChoice,
+        voterId: voterToken,
+        ts: Date.now()
+      });
+
+      // 로컬 즉시 반영
+      processVoteMessage(payload);
+      if (!isKiosk) {
+        try { localStorage.setItem(getLocalVotedKey(), '1'); } catch {}
+      }
+
+      try {
+        await fetch(`https://ntfy.sh/${getTopicName()}`, {
+          method: 'POST',
+          body: payload
+        });
+      } catch {}
+
+      currentChoice = null;
+      submitBtn.textContent = '🗳️ 투표함에 넣기 (투표 제출)';
+      renderInteractiveBallot();
+      renderResultsUI();
+
+      if (isKiosk) {
+        alert('투표가 접수되었습니다! 다음 투표자가 이어서 기표할 수 있습니다.');
+      } else {
+        switchDigitalTab('results');
+      }
+    });
+
+    el('kiosk-mode-toggle').addEventListener('change', () => {
+      renderInteractiveBallot();
+    });
+
+    // 공유 링크 및 QR코드 표시
+    function updateShareLinkBox() {
+      const baseUrl = (location.protocol === 'http:' || location.protocol === 'https:')
+        ? (location.origin + location.pathname)
+        : 'https://poeticecho.github.io/votePDF/';
+      const encoded = encodePollData(data);
+      const shareUrl = `${baseUrl}?v=${encodeURIComponent(encoded)}`;
+      el('share-link-area').style.display = 'block';
+      el('share-url-input').value = shareUrl;
+      el('share-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(shareUrl)}`;
+      const expDate = new Date(Number(data.expiresAt));
+      el('share-expire-label').textContent = `마감 시각: ${expDate.toLocaleString('ko-KR')} 까지 (24시간)`;
+    }
+
+    el('create-share-btn').addEventListener('click', () => {
+      data.expiresAt = Date.now() + 24 * 60 * 60 * 1000;
+      save();
+      updateTimerUI();
+      updateShareLinkBox();
+    });
+
+    el('copy-share-btn').addEventListener('click', async () => {
+      const input = el('share-url-input');
+      input.select();
+      try {
+        await navigator.clipboard.writeText(input.value);
+        el('copy-share-btn').textContent = '복사됨 ✓';
+        setTimeout(() => { el('copy-share-btn').textContent = '복사'; }, 1800);
+      } catch {
+        document.execCommand('copy');
+      }
+    });
+
+    function switchDigitalTab(tab) {
+      const isVote = tab === 'vote';
+      el('tab-vote-btn').classList.toggle('active', isVote);
+      el('tab-result-btn').classList.toggle('active', !isVote);
+      el('view-vote').style.display = isVote ? 'block' : 'none';
+      el('view-results').style.display = isVote ? 'none' : 'block';
+      if (!isVote) {
+        renderResultsUI();
+      }
+    }
+
+    el('tab-vote-btn').addEventListener('click', () => switchDigitalTab('vote'));
+    el('tab-result-btn').addEventListener('click', () => switchDigitalTab('results'));
+    el('go-results-btn').addEventListener('click', () => switchDigitalTab('results'));
+    el('back-to-booth-btn').addEventListener('click', () => switchDigitalTab('vote'));
+    el('refresh-results-btn').addEventListener('click', () => fetchAllVotes());
+
+    el('reset-votes-btn').addEventListener('click', async () => {
+      if (!confirm('현재 집계를 모두 0표로 초기화하고 새로운 24시간 투표함을 열까요?')) return;
+      data.pollId = randomPollId();
+      data.expiresAt = Date.now() + 24 * 60 * 60 * 1000;
+      currentChoice = null;
+      save();
+      initVoteCounts();
+      renderInteractiveBallot();
+      renderResultsUI();
+      updateShareLinkBox();
+      connectLiveSSE();
+    });
+
+    function openDigitalModal() {
+      el('digital-overlay').classList.add('open');
+      currentChoice = null;
+      updateTimerUI();
+      renderInteractiveBallot();
+      updateShareLinkBox();
+      fetchAllVotes();
+      connectLiveSSE();
+      if (!timerInterval) {
+        timerInterval = setInterval(updateTimerUI, 1000);
+      }
+    }
+
+    el('open-digital-btn').addEventListener('click', openDigitalModal);
+    el('close-digital-btn').addEventListener('click', () => {
+      el('digital-overlay').classList.remove('open');
+      if (sseConnection) {
+        try { sseConnection.close(); } catch {}
+        sseConnection = null;
+      }
+    });
+
     addEventListener('resize', fit);
     render();
+
+    // 공유 링크(?v=...)로 접속한 경우 즉시 디지털 투표소 화면 오픈
+    if (isSharedVoterMode) {
+      el('digital-modal-title').textContent = `🗳️ ${data.title.trim() || '디지털 투표소'}`;
+      openDigitalModal();
+    }
   </script>
 </body>
 </html>
