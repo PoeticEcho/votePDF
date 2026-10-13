@@ -1537,6 +1537,127 @@
       background: rgba(255, 255, 255, 0.25);
     }
 
+    /* 기표 후 3초 미입력 시 중앙 자동 확인 팝업 모달 (20초 자동 리셋 카운트다운 포함) */
+    .vote-confirm-popup-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1250;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      user-select: none;
+      animation: popupFadeIn 0.2s ease-out;
+    }
+
+    .vote-confirm-popup-overlay.active {
+      display: flex;
+    }
+
+    @keyframes popupFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .vote-confirm-popup-box {
+      background: #ffffff;
+      color: #0f172a;
+      border: 2px solid #dc2626;
+      border-radius: 22px;
+      padding: 30px 26px 24px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    .vote-confirm-stamp-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #fef2f2;
+      border: 2px solid #fecaca;
+      margin-bottom: 12px;
+    }
+
+    .vote-confirm-choice-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #dc2626;
+      line-height: 1.35;
+      margin: 0 0 8px;
+      word-break: keep-all;
+    }
+
+    .vote-confirm-question {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 22px;
+    }
+
+    .vote-confirm-btn-row {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .vote-confirm-yes-btn {
+      background: #dc2626;
+      border-color: #dc2626;
+      color: #fff;
+      padding: 15px 18px;
+      font-size: 17px;
+      font-weight: 800;
+      border-radius: 12px;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.28);
+    }
+
+    .vote-confirm-yes-btn:hover {
+      background: #b91c1c;
+    }
+
+    .vote-confirm-reselect-btn {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: #334155;
+      padding: 15px 14px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 12px;
+      justify-content: center;
+    }
+
+    .vote-confirm-reselect-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .vote-confirm-reset-notice {
+      font-size: 12.5px;
+      color: #64748b;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-weight: 600;
+    }
+
+    .vote-confirm-reset-notice b {
+      color: #dc2626;
+    }
+
     /* 15초 물리적 중복투표 방지 쿨다운 오버레이 */
     .kiosk-cooldown-overlay {
       display: none;
@@ -1562,7 +1683,7 @@
       border: 1px solid #334155;
       border-radius: 20px;
       padding: 34px 28px;
-      max-width: 440px;
+      max-width: 460px;
       width: 100%;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
     }
@@ -1573,21 +1694,35 @@
     }
 
     .cooldown-box h3 {
-      margin: 0 0 8px;
+      margin: 0 0 10px;
       font-size: 22px;
       color: #4ade80;
+      word-break: keep-all;
+    }
+
+    .cooldown-move-banner {
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      color: #bbf7d0;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin: 0 0 14px;
+      word-break: keep-all;
     }
 
     .cooldown-box p {
-      margin: 0 0 20px;
-      font-size: 14px;
+      margin: 0 0 18px;
+      font-size: 13.5px;
       color: #cbd5e1;
       line-height: 1.6;
+      word-break: keep-all;
     }
 
     .cooldown-count-circle {
-      width: 88px;
-      height: 88px;
+      width: 92px;
+      height: 92px;
       border-radius: 50%;
       border: 4px solid #38bdf8;
       display: flex;
@@ -1620,6 +1755,13 @@
       background: #38bdf8;
       width: 100%;
       transition: width 0.25s linear;
+    }
+
+    .cooldown-next-hint {
+      margin-top: 12px;
+      font-size: 12.5px;
+      color: #93c5fd;
+      font-weight: 600;
     }
 
     @media (max-width: 900px) {
@@ -1657,6 +1799,9 @@
       .floating-confirm-actions button {
         justify-content: center;
       }
+      .vote-confirm-btn-row {
+        grid-template-columns: 1fr;
+      }
     }
 
     @page {
@@ -1687,6 +1832,7 @@
       .support,
       .digital-overlay,
       .floating-confirm-bar,
+      .vote-confirm-popup-overlay,
       .kiosk-cooldown-overlay {
         display: none !important;
       }
@@ -1933,7 +2079,7 @@
               <div class="vote-action-box">
                 <h3>1. 내 기표 확인 및 현장 키오스크</h3>
                 <p class="note" style="margin-top:2px">
-                  투표용지 칸을 누르면 하단에 <b>[예] / [다시선택]</b> 확인 바가 나타나며, 투표 후에는 <b>15초 동안 물리적으로 중복투표가 차단</b>됩니다.
+                  투표용지 칸을 누르면 하단 확인 바(3초 미선택 시 중앙 팝업)가 나타나며, 투표 후에는 <b>15초 동안 물리적으로 중복투표가 차단</b>됩니다.
                 </p>
                 <div class="selected-notice" id="selected-candidate-notice">아직 기표하지 않았습니다. 투표용지 칸을 눌러주세요.</div>
                 <button type="button" class="submit-vote-btn" id="submit-vote-btn" disabled>🗳️ 기표함에 넣기 (투표 제출)</button>
@@ -1947,7 +2093,7 @@
                     🖥️ 현장 키오스크 전체화면 시작 (관리메뉴 잠금)
                   </button>
                   <p class="note" style="margin:0;font-size:11.5px">
-                    • 화면 꺼짐 방지(Wake Lock) · 투표지 접힘 비밀보호 · 15초 입퇴장 쿨다운 · 30초 방치 시 자동 리셋이 작동합니다.
+                    • 화면 꺼짐 방지(Wake Lock) · 3초 후 중앙 확인 팝업 · 20초 미투입 시 자동 리셋 · 15초 입퇴장 쿨다운이 작동합니다.
                   </p>
                 </div>
               </div>
@@ -2029,21 +2175,51 @@
     </div>
   </div>
 
+  <!-- 기표 후 3초 동안 하단 버튼을 누르지 않을 때 뜨는 중앙 확인 팝업 모달 -->
+  <div class="vote-confirm-popup-overlay" id="vote-confirm-popup-overlay" role="dialog" aria-modal="true" aria-labelledby="vote-confirm-choice-title">
+    <div class="vote-confirm-popup-box">
+      <div class="vote-confirm-stamp-badge" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="30" height="30">
+          <g transform="rotate(-34 20 20)" fill="none" stroke="#d62828" stroke-linecap="round">
+            <circle cx="20" cy="20" r="15.5" stroke-width="3.2"/>
+            <line x1="20" y1="4.5" x2="20" y2="35.5" stroke-width="3"/>
+            <line x1="20" y1="19" x2="34.5" y2="25.5" stroke-width="3"/>
+          </g>
+        </svg>
+      </div>
+      <h3 class="vote-confirm-choice-title" id="vote-confirm-choice-title">기호 1번 첫번째곰돌이</h3>
+      <p class="vote-confirm-question">기표함에 넣겠습니까?</p>
+      <div class="vote-confirm-btn-row">
+        <button type="button" class="vote-confirm-yes-btn" id="popup-yes-btn">🗳️ 예 (기표함에 넣기)</button>
+        <button type="button" class="vote-confirm-reselect-btn" id="popup-reselect-btn">↩️ 다시 선택</button>
+      </div>
+      <div class="vote-confirm-reset-notice">
+        ⏳ 미선택 시 <b id="popup-reset-sec">17</b>초 후 기표가 자동 초기화됩니다
+      </div>
+    </div>
+  </div>
+
   <!-- 15초 물리적 중복투표 방지 쿨다운 가림막 -->
   <div class="kiosk-cooldown-overlay" id="kiosk-cooldown-overlay" aria-live="polite">
     <div class="cooldown-box">
       <div class="cooldown-icon">🗳️</div>
-      <h3>기표함에 안전하게 넣었습니다!</h3>
+      <h3>소중한 한 표가 기표함에 들어갔습니다!</h3>
+      <div class="cooldown-move-banner">
+        ✅ 투표가 완료되었습니다. 지금 자리에서 이동해 주세요!
+      </div>
       <p>
-        비밀투표 보호 및 퇴장·입장 시간 확보를 위해<br>
-        <b>15초 동안 다음 투표가 물리적으로 제한</b>됩니다.
+        비밀투표 보호와 다음 투표자 입장 준비를 위해<br>
+        <b>15초 동안 화면이 잠시 잠깁니다.</b>
       </p>
       <div class="cooldown-count-circle">
         <span id="cooldown-sec-num">15</span>
-        <small>초 후 활성화</small>
+        <small>초 뒤 다음 투표</small>
       </div>
       <div class="cooldown-progress-track">
         <div class="cooldown-progress-bar" id="cooldown-progress-bar"></div>
+      </div>
+      <div class="cooldown-next-hint">
+        🚶 다음 순서 투표자는 잠시만 대기해 주세요 (자동으로 열립니다)
       </div>
     </div>
   </div>
@@ -2762,7 +2938,10 @@
     let sseConnection = null;
     let timerInterval = null;
     let cooldownInterval = null;
+    let confirmPopupTimer = null;
     let inactivityTimer = null;
+    let inactivityTickInterval = null;
+    let choiceSelectedAt = 0;
     let wakeLockSentinel = null;
     let soundEnabled = true;
     let audioCtx = null;
@@ -2770,6 +2949,8 @@
     let activeOneTimeTicket = generateTicketCode(data.pollId);
     let idbVotedCache = false;
     const COOLDOWN_SECONDS = 15;
+    const CONFIRM_POPUP_DELAY_MS = 3000;
+    const INACTIVITY_RESET_SECONDS = 20;
 
     // 공유 링크 참여자는 키오스크 모드를 절대 켤 수 없도록 격리 (보안 구멍 #1 해결)
     function isKioskModeActive() {
@@ -3112,15 +3293,74 @@
       }
     }
 
-    // 30초 방치 시 기표 자동 리셋 (비밀투표 보호)
-    function resetInactivityTimer() {
-      if (inactivityTimer) clearTimeout(inactivityTimer);
-      if (currentChoice !== null) {
-        inactivityTimer = setTimeout(() => {
-          currentChoice = null;
-          renderInteractiveBallot();
-        }, 30000);
+    function getChosenCandidateLabel(choiceIdx) {
+      if (choiceIdx === null || choiceIdx === undefined) return '';
+      if (data.quantity === 1) {
+        return choiceIdx === 0 ? '⭕ 찬성' : '❌ 반대';
       }
+      const cName = data.names[choiceIdx]?.trim() || `${choiceIdx + 1}번 후보`;
+      const pName = data.party && data.parties[choiceIdx]?.trim() ? ` (${data.parties[choiceIdx].trim()})` : '';
+      return `기호 ${choiceIdx + 1}번 ${cName}${pName}`;
+    }
+
+    function clearChoiceTimers() {
+      if (confirmPopupTimer) {
+        clearTimeout(confirmPopupTimer);
+        confirmPopupTimer = null;
+      }
+      if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = null;
+      }
+      if (inactivityTickInterval) {
+        clearInterval(inactivityTickInterval);
+        inactivityTickInterval = null;
+      }
+      choiceSelectedAt = 0;
+      const popup = el('vote-confirm-popup-overlay');
+      if (popup) popup.classList.remove('active');
+    }
+
+    function updateConfirmPopupCountdown() {
+      if (currentChoice === null || !choiceSelectedAt) return;
+      const remMs = Math.max(0, (choiceSelectedAt + INACTIVITY_RESET_SECONDS * 1000) - Date.now());
+      const remSec = Math.ceil(remMs / 1000);
+      const secEl = el('popup-reset-sec');
+      if (secEl) secEl.textContent = String(remSec);
+      const titleEl = el('vote-confirm-choice-title');
+      if (titleEl) titleEl.textContent = getChosenCandidateLabel(currentChoice);
+    }
+
+    function openConfirmPopup() {
+      const isModalOpen = el('digital-overlay').classList.contains('open');
+      const isVoteTab = el('view-vote').style.display !== 'none';
+      const inCooldown = getRemainingCooldownMs() > 0;
+      const blockStatus = getVoterBlockStatus();
+      if (!isModalOpen || !isVoteTab || currentChoice === null || isPollExpired() || inCooldown || blockStatus) {
+        return;
+      }
+      updateConfirmPopupCountdown();
+      el('vote-confirm-popup-overlay').classList.add('active');
+    }
+
+    // 기표 후 3초 미입력 시 중앙 확인 팝업 오픈 + 20초 미투입 시 자동 리셋 (비밀투표 보호)
+    function startChoiceTimers() {
+      clearChoiceTimers();
+      if (currentChoice === null) return;
+      choiceSelectedAt = Date.now();
+      updateConfirmPopupCountdown();
+
+      confirmPopupTimer = setTimeout(() => {
+        openConfirmPopup();
+      }, CONFIRM_POPUP_DELAY_MS);
+
+      inactivityTimer = setTimeout(() => {
+        currentChoice = null;
+        clearChoiceTimers();
+        renderInteractiveBallot();
+      }, INACTIVITY_RESET_SECONDS * 1000);
+
+      inactivityTickInterval = setInterval(updateConfirmPopupCountdown, 250);
     }
 
     function formatRemainingTime() {
@@ -3164,9 +3404,7 @@
       if (data.quantity === 1) {
         labelEl.textContent = `👉 [${currentChoice === 0 ? '⭕ 찬성' : '❌ 반대'}] 기표 완료`;
       } else {
-        const cName = data.names[currentChoice]?.trim() || `${currentChoice + 1}번 후보`;
-        const pName = data.party && data.parties[currentChoice]?.trim() ? ` (${data.parties[currentChoice].trim()})` : '';
-        labelEl.textContent = `👉 기호 ${currentChoice + 1}번 ${cName}${pName}`;
+        labelEl.textContent = `👉 ${getChosenCandidateLabel(currentChoice)}`;
       }
       bar.classList.add('visible');
     }
@@ -3201,6 +3439,7 @@
         }
         overlay.classList.add('active');
         el('floating-confirm-bar').classList.remove('visible');
+        el('vote-confirm-popup-overlay').classList.remove('active');
         const sec = Math.ceil(remMs / 1000);
         secEl.textContent = String(sec);
         const pct = Math.max(0, Math.min(100, (remMs / (COOLDOWN_SECONDS * 1000)) * 100));
@@ -3224,33 +3463,37 @@
 
       if (inCooldown) {
         notice.style.color = '#0284c7';
-        notice.textContent = '⏳ 중복투표 방지를 위해 15초 대기 중입니다...';
+        notice.textContent = '⏳ 투표 완료! 다음 투표자 입장을 위해 잠시 대기 중입니다...';
         submitBtn.disabled = true;
+        clearChoiceTimers();
       } else if (blockStatus) {
         notice.style.color = blockStatus.code === 'already_voted_device' ? '#15803d' : '#b91c1c';
         notice.textContent = blockStatus.msg;
         submitBtn.disabled = true;
+        clearChoiceTimers();
       } else if (isPollExpired()) {
         notice.style.color = '#b91c1c';
         notice.textContent = '⏰ 투표 기간(24시간)이 종료되었습니다.';
         submitBtn.disabled = true;
+        clearChoiceTimers();
       } else if (currentChoice === null) {
         notice.style.color = '#64748b';
         notice.textContent = '아직 기표하지 않았습니다. 투표용지 칸을 눌러 도장을 찍어주세요.';
         submitBtn.disabled = true;
+        clearChoiceTimers();
       } else {
         notice.style.color = '#d62828';
         if (data.quantity === 1) {
-          notice.textContent = `👉 [${currentChoice === 0 ? '찬성' : '반대'}] 칸에 기표 도장을 찍었습니다.`;
+          notice.textContent = `👉 [${currentChoice === 0 ? '찬성' : '반대'}] 칸에 기표 도장을 찍었습니다. (20초 미투입 시 자동 초기화)`;
         } else {
           const cName = data.names[currentChoice]?.trim() || `${currentChoice + 1}번 후보`;
-          notice.textContent = `👉 기호 ${currentChoice + 1}번 [${cName}] 후보에게 기표 도장을 찍었습니다.`;
+          notice.textContent = `👉 기호 ${currentChoice + 1}번 [${cName}] 후보에게 기표 도장을 찍었습니다. (20초 미투입 시 자동 초기화)`;
         }
         submitBtn.disabled = false;
+        updateConfirmPopupCountdown();
       }
 
       updateFloatingConfirmBar();
-      resetInactivityTimer();
 
       container.querySelectorAll('[data-choice]').forEach(elem => {
         elem.addEventListener('click', () => {
@@ -3261,6 +3504,7 @@
             return;
           }
           currentChoice = Number(elem.dataset.choice);
+          startChoiceTimers();
           playSound('stamp');
           if (navigator.vibrate) {
             try { navigator.vibrate(35); } catch {}
@@ -3612,21 +3856,27 @@
       }
     }
 
-    // 투표 제출 공통 함수 (하단 플로팅 [예] 버튼 & 우측 [기표함에 넣기] 버튼 공유)
+    // 투표 제출 공통 함수 (하단 플로팅 [예] · 3초 중앙 팝업 [예] · 우측 [기표함에 넣기] 버튼 공유)
     async function executeVoteSubmit() {
       if (currentChoice === null || isPollExpired() || getRemainingCooldownMs() > 0) return;
       const blk = getVoterBlockStatus();
       if (blk) {
+        clearChoiceTimers();
         alert(blk.msg);
         renderInteractiveBallot();
         return;
       }
 
+      const chosenIdx = currentChoice;
+      clearChoiceTimers();
+
       const isKiosk = isKioskModeActive();
       const submitBtn = el('submit-vote-btn');
       const floatYesBtn = el('floating-yes-btn');
+      const popupYesBtn = el('popup-yes-btn');
       submitBtn.disabled = true;
       floatYesBtn.disabled = true;
+      popupYesBtn.disabled = true;
       el('floating-confirm-bar').classList.remove('visible');
 
       // 비밀투표 보호: 투표용지가 접혀서 투표함으로 들어가는 애니메이션 + 효과음
@@ -3639,7 +3889,6 @@
         ballotArticle.classList.add('folding');
       }
 
-      const chosenIdx = currentChoice;
       const nowTs = Date.now();
       const blindVid = getMyBlindVoterId();
       const voterToken = isKiosk
@@ -3676,17 +3925,23 @@
 
       currentChoice = null;
       floatYesBtn.disabled = false;
+      popupYesBtn.disabled = false;
       renderInteractiveBallot();
       renderResultsUI();
     }
 
+    function cancelAndReselectChoice() {
+      currentChoice = null;
+      clearChoiceTimers();
+      renderInteractiveBallot();
+    }
+
     el('submit-vote-btn').addEventListener('click', executeVoteSubmit);
     el('floating-yes-btn').addEventListener('click', executeVoteSubmit);
+    el('popup-yes-btn').addEventListener('click', executeVoteSubmit);
 
-    el('floating-reselect-btn').addEventListener('click', () => {
-      currentChoice = null;
-      renderInteractiveBallot();
-    });
+    el('floating-reselect-btn').addEventListener('click', cancelAndReselectChoice);
+    el('popup-reselect-btn').addEventListener('click', cancelAndReselectChoice);
 
     el('kiosk-mode-toggle').addEventListener('change', () => {
       if (isSharedVoterMode) {
@@ -3842,6 +4097,7 @@
       el('view-results').style.display = isVote ? 'none' : 'block';
       updateFloatingConfirmBar();
       if (!isVote) {
+        el('vote-confirm-popup-overlay').classList.remove('active');
         renderResultsUI();
       }
     }
@@ -3861,6 +4117,7 @@
       data.expiresAt = Date.now() + 24 * 60 * 60 * 1000;
       activeOneTimeTicket = generateTicketCode(data.pollId);
       currentChoice = null;
+      clearChoiceTimers();
       idbVotedCache = false;
       save();
       initVoteCounts();
@@ -3874,6 +4131,7 @@
     async function openDigitalModal() {
       el('digital-overlay').classList.add('open');
       currentChoice = null;
+      clearChoiceTimers();
       updateTimerUI();
       syncCooldownOverlay();
       renderInteractiveBallot();
@@ -3888,6 +4146,7 @@
 
     el('open-digital-btn').addEventListener('click', openDigitalModal);
     el('close-digital-btn').addEventListener('click', () => {
+      clearChoiceTimers();
       exitKioskFullscreen();
       el('digital-overlay').classList.remove('open');
       el('floating-confirm-bar').classList.remove('visible');
