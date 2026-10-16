@@ -702,6 +702,13 @@
       height: 17.5mm;
     }
 
+    /* 9~12명: A4 세로 여백과 기표 공간을 유지하는 후보 행 높이 */
+    .sheet:is(.q-9, .q-10, .q-11, .q-12) .ballot td {
+      height: 15mm;
+      padding-top: 0.6mm;
+      padding-bottom: 0.6mm;
+    }
+
     .ballot .name,
     .ballot .party-name {
       font-weight: var(--name-weight);
@@ -1131,33 +1138,33 @@
     }
 
     .interactive-ballot-box .ballot.q-7,
-    .interactive-ballot-box .ballot.q-8 {
+    .interactive-ballot-box .ballot:is(.q-8, .q-9, .q-10, .q-11, .q-12) {
       padding: 15px 16px 12px;
     }
 
     .interactive-ballot-box .ballot.q-7 .ballot-title,
-    .interactive-ballot-box .ballot.q-8 .ballot-title {
+    .interactive-ballot-box .ballot:is(.q-8, .q-9, .q-10, .q-11, .q-12) .ballot-title {
       min-height: 32px;
     }
 
     .interactive-ballot-box .ballot.q-7 .ballot-sub,
-    .interactive-ballot-box .ballot.q-8 .ballot-sub {
+    .interactive-ballot-box .ballot:is(.q-8, .q-9, .q-10, .q-11, .q-12) .ballot-sub {
       margin-bottom: 8px;
     }
 
     .interactive-ballot-box .ballot.q-7 td,
-    .interactive-ballot-box .ballot.q-8 td {
+    .interactive-ballot-box .ballot:is(.q-8, .q-9, .q-10, .q-11, .q-12) td {
       height: 38px;
     }
 
     .interactive-ballot-box .ballot.q-7 .mark,
-    .interactive-ballot-box .ballot.q-8 .mark {
+    .interactive-ballot-box .ballot:is(.q-8, .q-9, .q-10, .q-11, .q-12) .mark {
       min-height: 26px;
       height: 28px;
     }
 
     .interactive-ballot-box .ballot.q-7.row-gap-on table:not(.approval-table),
-    .interactive-ballot-box .ballot.q-8.row-gap-on table:not(.approval-table) {
+    .interactive-ballot-box .ballot:is(.q-8, .q-9, .q-10, .q-11, .q-12).row-gap-on table:not(.approval-table) {
       border-spacing: 0 4px;
       margin: -4px 0;
     }
@@ -2158,7 +2165,7 @@
         <div class="field">
           <div class="field-legend">용지 배치 (카드 수 · 너비 선택)</div>
           <div class="layout-chips" id="layout-chips">
-            <button type="button" class="chip-btn" data-layout="auto">자동 추천<br><small>1~4명 6장 / 5~8명 3장</small></button>
+            <button type="button" class="chip-btn" data-layout="auto">자동 추천<br><small>1~4명 6장 / 5~12명 3장</small></button>
             <button type="button" class="chip-btn" data-layout="3x2">3×2 배열 (6장)<br><small>표준 폭 70mm</small></button>
             <button type="button" class="chip-btn" data-layout="2x2">2×2 배열 (4장)<br><small>넓은 폭 105mm (실제 규격)</small></button>
             <button type="button" class="chip-btn" data-layout="3x1">3×1 배열 (3장)<br><small>표준 폭 70mm · 긴 세로</small></button>
@@ -2430,7 +2437,8 @@
   <script>
     const key = 'ballot-editor-party-v1';
     const voterKey = 'ballot-voter-device-id';
-    const defaults = ['첫번째곰돌이', '양양이', '불리', '브릭타', '하식이', '짜구짜꾸', '엄마토끼', '해오름토끼'];
+    const MAX_CANDIDATES = 12;
+    const defaults = ['첫번째  곰돌이', '양양이', '불리', '브릭타', '하식이', '짜구짜꾸', '엄마토끼', '해오름  토끼', '뱀돌이', '블루   레이서', '화이트  곰돌이', '리오에스'];
 
     // 64비트 고속 해시 알고리즘 (cyrb53) - 하드웨어 지문 및 입장 서명 생성용
     function cyrb53(str, seed = 0) {
@@ -2552,7 +2560,7 @@
       party: false,
       layoutMode: 'auto',
       names: [...defaults],
-      parties: ['무소속', '푸른당', '해오름당', '무소속', '', '', '', ''],
+      parties: ['무소속', '푸른당', '해오름당', '무소속', '', '', '', '', '', '', '', ''],
       style: { ...DEFAULT_STYLE },
       official: { ...DEFAULT_OFFICIAL },
       pollId: randomPollId(),
@@ -2577,11 +2585,11 @@
       return {
         ...base,
         title: typeof m.t === 'string' ? m.t.slice(0, 100) : base.title,
-        quantity: Math.min(8, Math.max(1, Number(m.q) || 4)),
+        quantity: Math.min(MAX_CANDIDATES, Math.max(1, Number(m.q) || 4)),
         party: !!m.p,
         layoutMode: m.l || 'auto',
-        names: Array.from({ length: 8 }, (_, i) => clean(m.n?.[i] ?? defaults[i])),
-        parties: Array.from({ length: 8 }, (_, i) => clean(m.pa?.[i] ?? '')),
+        names: Array.from({ length: MAX_CANDIDATES }, (_, i) => clean(m.n?.[i] ?? defaults[i])),
+        parties: Array.from({ length: MAX_CANDIDATES }, (_, i) => clean(m.pa?.[i] ?? '')),
         style: { ...DEFAULT_STYLE, ...(m.s || {}) },
         official: { ...DEFAULT_OFFICIAL, ...(m.o || {}) },
         pollId: typeof m.id === 'string' && m.id ? m.id : randomPollId(),
@@ -2645,11 +2653,11 @@
           data = {
             ...base,
             title: typeof saved.title === 'string' ? saved.title.slice(0, 100) : base.title,
-            quantity: Math.min(8, Math.max(1, Number(saved.quantity) || 4)),
+            quantity: Math.min(MAX_CANDIDATES, Math.max(1, Number(saved.quantity) || 4)),
             party: !!saved.party,
             layoutMode: ['auto', '3x2', '2x2', '3x1', '2x1'].includes(saved.layoutMode) ? saved.layoutMode : 'auto',
             names: [...defaults].map((v, i) => clean(saved.names?.[i] ?? v)),
-            parties: Array.from({ length: 8 }, (_, i) => clean(saved.parties?.[i] ?? base.parties[i] ?? '')),
+            parties: Array.from({ length: MAX_CANDIDATES }, (_, i) => clean(saved.parties?.[i] ?? base.parties[i] ?? '')),
             style: { ...DEFAULT_STYLE, ...(saved.style || {}) },
             official: { ...DEFAULT_OFFICIAL, ...(saved.official || {}) },
             pollId: (saved.pollId && saved.pollId.length <= 8) ? saved.pollId : randomPollId(),
@@ -2664,7 +2672,7 @@
     const el = id => document.getElementById(id);
 
     // 후보 수 옵션 생성
-    for (let n = 1; n <= 8; n++) {
+    for (let n = 1; n <= MAX_CANDIDATES; n++) {
       const o = document.createElement('option');
       o.value = n;
       o.textContent = n + '명';
@@ -2861,7 +2869,7 @@
 
       el('quantity-help').textContent = q <= 4
         ? '1~4명: 기본 3×2 배열(A4 한 장에 6개) · 필요시 2×2(넓은 폭 4개)나 3×1(3개) 선택 가능'
-        : '5~8명: 세로 길이에 맞춰 3×1 배열(3개, 폭 70mm) 또는 2×1 배열(2개, 넓은 폭 105mm)로 배치됩니다.';
+        : '5~12명: 세로 길이에 맞춰 3×1 배열(3개, 폭 70mm) 또는 2×1 배열(2개, 넓은 폭 105mm)로 배치됩니다.';
 
       el('layout-label').textContent = `A4 한 장 · ${copies}장 (${cols}열 × ${rows}행 · 카드 폭 ${widthMm}mm)`;
 
@@ -3120,6 +3128,16 @@
       }
       if (document.fonts && document.fonts.ready) {
         try { await document.fonts.ready; } catch {}
+      }
+      const overflowing = [...el('sheet').querySelectorAll('.ballot')].some(card => {
+        const scale = card.getBoundingClientRect().height / card.offsetHeight;
+        const bottom = card.getBoundingClientRect().bottom - parseFloat(getComputedStyle(card).paddingBottom) * scale;
+        return card.scrollHeight > card.clientHeight + 1 ||
+          [...card.children].some(child => child.getBoundingClientRect().bottom > bottom + scale);
+      });
+      if (overflowing) {
+        alert('투표용지 내용이 인쇄 영역을 넘습니다. 제목이나 글자 크기를 줄이거나 넓은 폭(2열) 배치를 선택해 주세요.');
+        return;
       }
       window.print();
     });
@@ -3891,11 +3909,11 @@
           if (isSharedVoterMode) {
             const prevQ = data.quantity;
             data.title = typeof parsed.t === 'string' ? parsed.t.slice(0, 100) : data.title;
-            data.quantity = Math.min(8, Math.max(1, Number(parsed.q) || 4));
+            data.quantity = Math.min(MAX_CANDIDATES, Math.max(1, Number(parsed.q) || 4));
             data.party = !!parsed.p;
             data.layoutMode = parsed.l || 'auto';
-            data.names = Array.from({ length: 8 }, (_, i) => clean(parsed.n?.[i] ?? defaults[i]));
-            data.parties = Array.from({ length: 8 }, (_, i) => clean(parsed.pa?.[i] ?? ''));
+            data.names = Array.from({ length: MAX_CANDIDATES }, (_, i) => clean(parsed.n?.[i] ?? defaults[i]));
+            data.parties = Array.from({ length: MAX_CANDIDATES }, (_, i) => clean(parsed.pa?.[i] ?? ''));
             data.style = { ...DEFAULT_STYLE, ...(parsed.s || {}) };
             data.official = { ...DEFAULT_OFFICIAL, ...(parsed.o || {}) };
             data.expiresAt = Number(parsed.ex) || data.expiresAt;
